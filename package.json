@@ -1,0 +1,32 @@
+{
+  "name": "git-aic",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Git AIC",
+  "main": "bin/cli.ts",
+  "scripts": {
+    "commit": "tsx bin/cli.ts"
+  },
+  "keywords": [
+    "git",
+    "aic",
+    "ai",
+    "git-aic"
+  ],
+  "author": "Olatilewa Olatoye",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^25.3.5",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "axios": "^1.13.6",
+    "chalk": "^5.6.2",
+    "commander": "^14.0.3",
+    "simple-git": "^3.32.3"
+  }
+}
