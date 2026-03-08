@@ -4,7 +4,7 @@ import { Command } from "commander";
 import { simpleGit } from "simple-git";
 import type { SimpleGit } from "simple-git";
 import chalk from "chalk";
-import { getGitDiff } from "../src/git";
+import { getGitDiff, getBranchName } from "../src/git";
 import { generateCommitMessage } from "../src/llm";
 
 const git: SimpleGit = simpleGit();
@@ -30,7 +30,8 @@ program.action(async (options) => {
     console.log("");
 
     console.log(chalk.blue("Analyzing staged changes...\n"));
-    const message = await generateCommitMessage(diff);
+    const branchName = await getBranchName();
+    const message = await generateCommitMessage(diff, branchName);
 
     console.log(chalk.green("Commit message generated:\n"));
     console.log(chalk.green(`"${message}"\n`));

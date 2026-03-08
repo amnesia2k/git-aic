@@ -1,11 +1,12 @@
-export const buildPrompt = (diff: string): string =>
+export const buildPrompt = (diff: string, branchName: string): string =>
   `
 CRITICAL INSTRUCTIONS - READ CAREFULLY:
 You are an expert Git commit message writer. You MUST follow ALL these rules:
 
-1. FORMAT: Use Conventional Commits format: <type>(<scope>): <description>
+1. FORMAT: Use Conventional Commits format: <type>(<scope>/<branch_name>): <description>
    - type: MUST be one of: feat, fix, refactor, chore, docs, style, test, perf
    - scope: Should be the module/file affected (e.g., "auth", "api", "ui", "config")
+   - branch_name: The current Git branch you are on. It is "${branchName || "unknown"}"
    - description: Clear, imperative description in present tense
 
 2. DESCRIPTION REQUIREMENTS:
@@ -18,10 +19,10 @@ You are an expert Git commit message writer. You MUST follow ALL these rules:
 
 3. MESSAGE STRUCTURE:
    - The entire commit message must be exactly one line
-   - Format: type(scope): description
-   - Example: "feat(auth): add password reset functionality"
-   - Example: "fix(api): handle null response in user endpoint"
-   - Example: "refactor(ui): simplify component state management"
+   - Format: type(scope/${branchName || "unknown"}): description
+   - Example: "feat(auth/${branchName || "unknown"}): add password reset functionality"
+   - Example: "fix(api/${branchName || "unknown"}): handle null response in user endpoint"
+   - Example: "refactor(ui/${branchName || "unknown"}): simplify component state management"
 
 4. QUALITY CHECKS - YOUR OUTPUT MUST PASS:
    - Contains opening and closing parentheses

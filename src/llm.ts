@@ -20,6 +20,7 @@ interface GeminiResponse {
 
 export const generateCommitMessage = async (
   rawDiff: string,
+  branchName: string,
 ): Promise<string> => {
   const API_URL =
     "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent";
@@ -48,7 +49,7 @@ export const generateCommitMessage = async (
 
     process.exit(1);
   }
-  const prompt = buildPrompt(rawDiff);
+  const prompt = buildPrompt(rawDiff, branchName);
 
   try {
     const response = await axios.post<GeminiResponse>(

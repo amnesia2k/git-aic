@@ -19,3 +19,13 @@ export const getGitDiff = async () => {
     return "";
   }
 };
+
+export const getBranchName = async () => {
+  try {
+    const status = await git.status();
+    return status.current || "";
+  } catch (error) {
+    console.error(error);
+    return "";
+  }
+};
