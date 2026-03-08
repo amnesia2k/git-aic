@@ -36,7 +36,7 @@ program.action(async (options) => {
     console.log(chalk.green("Commit message generated:\n"));
     console.log(chalk.green(`"${message}"\n`));
 
-    console.log(chalk.blue(`> ran: git commit -m "${message}"`));
+    console.log(chalk.blue(`> ran: git commit -m\n"${message}"`));
     await git.commit(message);
     console.log(chalk.green("\nCommit successful"));
 
