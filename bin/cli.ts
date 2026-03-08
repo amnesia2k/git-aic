@@ -1,11 +1,11 @@
-#!/usr/bin/env tsx
+#!/usr/bin/env ts-node
 
 import { Command } from "commander";
 import { simpleGit } from "simple-git";
 import type { SimpleGit } from "simple-git";
 import chalk from "chalk";
-import { getGitDiff } from "../src/git.js";
-import { generateCommitMessage } from "../src/llm.js";
+import { getGitDiff } from "../src/git";
+import { generateCommitMessage } from "../src/llm";
 
 const git: SimpleGit = simpleGit();
 const program = new Command();
