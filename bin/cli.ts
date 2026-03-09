@@ -28,7 +28,11 @@ program.action(async (options) => {
 
       // Automatically stage deleted files
       if (status.deleted.length > 0) {
-        console.log(chalk.cyan(`Auto-staging ${status.deleted.length} deleted file(s)...`));
+        console.log(
+          chalk.cyan(
+            `Auto-staging ${status.deleted.length} deleted file(s)...`,
+          ),
+        );
         await git.add(status.deleted);
       }
 
@@ -45,16 +49,22 @@ program.action(async (options) => {
         // If there were only deleted files, we might be good to go now!
         const postStageDiff = await getGitDiff();
         if (postStageDiff) {
-            console.log(chalk.green("Auto-staged deleted files successfully."));
+          console.log(chalk.green("Auto-staged deleted files successfully."));
         } else {
-            console.log(chalk.yellow("No files changed in this repository."));
-            process.exit(0);
+          console.log(chalk.yellow("No files changed in this repository."));
+          process.exit(0);
         }
+      } else if (uniqueFiles.length === 1) {
+        console.log(
+          chalk.cyan(`\nOnly one unstaged file found: ${uniqueFiles[0]}`),
+        );
+        console.log(chalk.blue(`Staging 1 file(s)...`));
+        await git.add(uniqueFiles[0]);
       } else {
         console.log();
         const p = await import("@clack/prompts");
-        
-        p.intro(chalk.bgCyan(chalk.black(' Git AIC ')));
+
+        p.intro(chalk.bgCyan(chalk.black(" Git AIC ")));
 
         const selectedFiles = await p.multiselect({
           message:
@@ -63,17 +73,21 @@ program.action(async (options) => {
           required: false,
         });
 
-        if (p.isCancel(selectedFiles) || !selectedFiles || (selectedFiles as string[]).length === 0) {
-            // Check if deleted files were staged
-            const postStageDiff = await getGitDiff();
-            if(!postStageDiff) {
-              p.outro(chalk.yellow("No files selected. Exiting."));
-              process.exit(0);
-            }
+        if (
+          p.isCancel(selectedFiles) ||
+          !selectedFiles ||
+          (selectedFiles as string[]).length === 0
+        ) {
+          // Check if deleted files were staged
+          const postStageDiff = await getGitDiff();
+          if (!postStageDiff) {
+            p.outro(chalk.yellow("No files selected. Exiting."));
+            process.exit(0);
+          }
         } else {
-            const filesToStage = selectedFiles as string[];
-            p.outro(chalk.blue(`Staging ${filesToStage.length} file(s)...`));
-            await git.add(filesToStage);
+          const filesToStage = selectedFiles as string[];
+          p.outro(chalk.blue(`Staging ${filesToStage.length} file(s)...`));
+          await git.add(filesToStage);
         }
       }
     }
