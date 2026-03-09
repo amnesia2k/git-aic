@@ -78,7 +78,7 @@ Git AIC is designed to be straightforward to use within your Git workflow.
 | Technology                                                                                                          | Description                                                     |
 | ------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
 | ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)   | Primary language for robust and scalable code.                  |
-| ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)          | JavaScript runtime for server-side execution.                   |
+| ![Bun](https://img.shields.io/badge/Bun-000?style=for-the-badge&logo=bun&logoColor=fff)                             | Fast all-in-one JavaScript runtime.                             |
 | ![Google Gemini](https://img.shields.io/badge/Google_Gemini-FF681A?style=for-the-badge&logo=google&logoColor=white) | Large Language Model for intelligent commit message generation. |
 | ![Axios](https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white)                  | Promise-based HTTP client for API requests.                     |
 | ![simple-git](https://img.shields.io/badge/simple--git-E44C30?style=for-the-badge&logo=git&logoColor=white)         | Facilitates Git operations programmatically.                    |
