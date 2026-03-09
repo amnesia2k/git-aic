@@ -1,15 +1,118 @@
-# git-aic
+# **Git AIC: AI-Powered Conventional Commits**
 
-To install dependencies:
+## Overview
 
-```bash
-bun install
-```
+Git AIC is an innovative command-line interface (CLI) tool crafted with TypeScript and Node.js that automates the generation of Conventional Git commit messages. By leveraging Google's Gemini Large Language Model (LLM), it analyzes your staged code changes to propose consistent, high-quality, and descriptive commit messages, significantly enhancing your project's commit history.
 
-To run:
+## Features
 
-```bash
-bun run index.ts
-```
+- **AI-Powered Generation**: Utilizes the Google Gemini LLM to intelligently analyze staged Git diffs and suggest commit messages.
+- **Conventional Commits Adherence**: Automatically formats commit messages according to the Conventional Commits specification, ensuring a clear and structured history.
+- **Interactive Workflow**: Provides an interactive command-line experience using `@clack/prompts` to review, accept, or modify suggested messages before committing.
+- **Branch-Aware Context**: Incorporates the current Git branch name into the commit scope for better contextualization.
+- **Error Handling**: Includes robust error handling for API key validation and LLM request failures.
 
-This project was created using `bun init` in bun v1.3.5. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+## Getting Started
+
+To get Git AIC up and running on your local machine, follow these simple steps.
+
+### Installation
+
+1.  **Clone the Repository**:
+    ```bash
+    git clone https://github.com/amnesia2k/git-aic.git
+    cd git-aic
+    ```
+2.  **Install Dependencies**:
+    ```bash
+    bun install # or yarn install or pnpm install
+    ```
+
+### Environment Variables
+
+Before running Git AIC, you must configure your Google Gemini API key.
+
+- `GEMINI_COMMIT_MESSAGE_API_KEY`: Your API key for accessing the Google Gemini API. This is crucial for the LLM integration.
+
+  _Example (macOS / Linux):_
+
+  ```bash
+  export GEMINI_COMMIT_MESSAGE_API_KEY=your_gemini_api_key_here
+  ```
+
+  _Example (Windows):_
+
+  ```powershell
+  setx GEMINI_COMMIT_MESSAGE_API_KEY "your_gemini_api_key_here"
+  ```
+
+  **Important**: After setting the environment variable, restart your terminal for the changes to take effect.
+
+## Usage
+
+Git AIC is designed to be straightforward to use within your Git workflow.
+
+1.  **Set up Git Alias**:
+    To manually run Git AIC from any git repository on your computer, configure a global git alias pointing to the absolute path of the `bin/cli.ts` file on your machine. Just update the path below to match where you cloned the project:
+
+    _Windows:_
+
+    ```bash
+    git config --global alias.aic '!npx tsx "C:/Users/YourName/path/to/git-aic/bin/cli.ts"'
+    ```
+
+    _macOS / Linux:_
+
+    ```bash
+    git config --global alias.aic '!npx tsx "/Users/YourName/path/to/git-aic/bin/cli.ts"'
+    ```
+
+2.  **Generate and Commit**:
+    Execute the customized git command. The tool will automatically auto-stage deleted files, prompt you interactively to stage any remaining untracked/modified files, analyze the diffs, and generate your conventional commit message!
+    ```bash
+    git aic
+    ```
+
+## Technologies Used
+
+| Technology                                                                                                          | Description                                                     |
+| ------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)   | Primary language for robust and scalable code.                  |
+| ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)          | JavaScript runtime for server-side execution.                   |
+| ![Google Gemini](https://img.shields.io/badge/Google_Gemini-FF681A?style=for-the-badge&logo=google&logoColor=white) | Large Language Model for intelligent commit message generation. |
+| ![Axios](https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white)                  | Promise-based HTTP client for API requests.                     |
+| ![simple-git](https://img.shields.io/badge/simple--git-E44C30?style=for-the-badge&logo=git&logoColor=white)         | Facilitates Git operations programmatically.                    |
+| ![Clack Prompts](https://img.shields.io/badge/Clack_Prompts-A26DFD?style=for-the-badge&logo=npm&logoColor=white)    | Interactive command-line interface prompts.                     |
+| ![Chalk](https://img.shields.io/badge/Chalk-FFB601?style=for-the-badge&logo=npm&logoColor=white)                    | Terminal string styling for enhanced readability.               |
+| ![Commander.js](https://img.shields.io/badge/Commander.js-F5F5F5?style=for-the-badge&logo=npm&logoColor=black)      | Framework for building robust command-line interfaces.          |
+
+## Contributing
+
+We welcome contributions to Git AIC! If you have suggestions for improvements or new features, please feel free to contribute.
+
+- ✨ Fork the repository to your GitHub account.
+- 🛠️ Create a new branch for your feature or bug fix: `git checkout -b feature/your-feature-name`.
+- 💡 Implement your changes and ensure they align with the project's coding style.
+- 📝 Commit your changes with a descriptive, Conventional Commit-style message.
+- 🚀 Push your branch and open a pull request.
+
+## License
+
+This project is licensed under the MIT License. See the `package.json` file for more details.
+
+## Author Info
+
+Developed by a passionate software engineer.
+
+- **Olatilewa Olatoye**
+  - LinkedIn: [`[Olatilewa Olatoye]`](https://www.linkedin.com/in/olatilewaolatoye)
+  - X (formerly Twitter): [`[@olathedev_]`](https://x.com/olathedev_)
+
+## Badges
+
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/en/)
+[![NPM Version](https://img.shields.io/npm/v/git-aic?style=for-the-badge)](https://www.npmjs.com/package/git-aic)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+
+[![Readme was generated by Dokugen](https://img.shields.io/badge/Readme%20was%20generated%20by-Dokugen-brightgreen)](https://www.npmjs.com/package/dokugen)
