@@ -6,6 +6,7 @@ import type { SimpleGit } from "simple-git";
 import chalk from "chalk";
 import { getGitDiff, getBranchName } from "../src/git";
 import { generateCommitMessage } from "../src/llm";
+import { spawnSync } from "child_process";
 
 const git: SimpleGit = simpleGit();
 const program = new Command();
@@ -51,8 +52,8 @@ program.action(async (options) => {
         if (postStageDiff) {
           console.log(chalk.green("Auto-staged deleted files successfully."));
         } else {
-            console.log(chalk.yellow("No files changed in this repository."));
-            process.exit(0);
+          console.log(chalk.yellow("No files changed in this repository."));
+          process.exit(0);
         }
       } else if (uniqueFiles.length === 1) {
         console.log(
@@ -112,7 +113,16 @@ program.action(async (options) => {
     console.log(chalk.green(`"${message}"\n`));
 
     console.log(chalk.blue(`> ran: git commit -m\n"${message}"`));
-    await git.commit(message);
+    // await git.commit(message);
+
+    const commitResult = spawnSync("git", ["commit", "-m", message], {
+      stdio: "inherit",
+    });
+
+    if (commitResult.status !== 0) {
+      throw new Error(`Git commit failed with status ${commitResult.status}`);
+    }
+
     console.log(chalk.green("\nCommit successful"));
 
     if (options.push) {
