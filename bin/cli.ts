@@ -51,8 +51,8 @@ program.action(async (options) => {
         if (postStageDiff) {
           console.log(chalk.green("Auto-staged deleted files successfully."));
         } else {
-          console.log(chalk.yellow("No files changed in this repository."));
-          process.exit(0);
+            console.log(chalk.yellow("No files changed in this repository."));
+            process.exit(0);
         }
       } else if (uniqueFiles.length === 1) {
         console.log(
