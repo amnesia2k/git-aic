@@ -92,7 +92,7 @@ program.action(async (options) => {
 
     console.log(chalk.blue("Analyzing staged changes...\n"));
     const branchName = await getBranchName();
-    const message = await generateCommitMessage(diff, branchName);
+    const message = await generateCommitMessage(finalDiff, branchName);
 
     console.log(chalk.green("Commit message generated:\n"));
     console.log(chalk.green(`"${message}"\n`));
