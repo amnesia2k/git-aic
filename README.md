@@ -86,7 +86,7 @@ Git AIC is designed to be straightforward to use within your Git workflow.
 | ![Chalk](https://img.shields.io/badge/Chalk-FFB601?style=for-the-badge&logo=npm&logoColor=white)                    | Terminal string styling for enhanced readability.               |
 | ![Commander.js](https://img.shields.io/badge/Commander.js-F5F5F5?style=for-the-badge&logo=npm&logoColor=black)      | Framework for building robust command-line interfaces.          |
 
-## Contributing
+<!-- ## Contributing
 
 We welcome contributions to Git AIC! If you have suggestions for improvements or new features, please feel free to contribute.
 
@@ -94,7 +94,7 @@ We welcome contributions to Git AIC! If you have suggestions for improvements or
 - 🛠️ Create a new branch for your feature or bug fix: `git checkout -b feature/your-feature-name`.
 - 💡 Implement your changes and ensure they align with the project's coding style.
 - 📝 Commit your changes with a descriptive, Conventional Commit-style message.
-- 🚀 Push your branch and open a pull request.
+- 🚀 Push your branch and open a pull request. -->
 
 ## License
 
