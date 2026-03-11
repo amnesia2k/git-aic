@@ -69,7 +69,7 @@ program.action(async (options) => {
 
         const selectedFiles = await p.multiselect({
           message:
-            "Select the files you want to stage and commit (Space to select, Enter to continue, Arrows to scroll):",
+            "Select the files you want to stage and commit (space to select files, a to select all, enter to continue, arrows to scroll):",
           options: uniqueFiles.map((file) => ({ value: file, label: file })),
           required: false,
         });
