@@ -115,7 +115,6 @@ program.action(async (options) => {
     console.log(chalk.blue(`> ran: git commit -m\n"${message}"`));
     // await git.commit(message);
 
-    // Use spawnSync to run git commit with the message as input
     const commitResult = spawnSync("git", ["commit", "-F", "-"], {
       input: message,
       stdio: ["pipe", "inherit", "inherit"],
@@ -128,8 +127,13 @@ program.action(async (options) => {
     console.log(chalk.green("\nCommit successful"));
 
     if (options.push) {
-      console.log(chalk.blue("> ran: git push"));
-      await git.push();
+      console.log(chalk.blue("\n> ran: git push"));
+      const pushResult = spawnSync("git", ["push"], { stdio: "inherit" });
+
+      if (pushResult.status !== 0) {
+        throw new Error(`Git push failed with status ${pushResult.status}`);
+      }
+
       console.log(chalk.green("Push successful"));
     }
   } catch (error: any) {
