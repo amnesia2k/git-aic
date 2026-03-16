@@ -115,8 +115,9 @@ program.action(async (options) => {
     console.log(chalk.blue(`> ran: git commit -m\n"${message}"`));
     // await git.commit(message);
 
-    const commitResult = spawnSync("git", ["commit", "-m", message], {
-      stdio: "inherit",
+    const commitResult = spawnSync("git", ["commit", "-F", "-"], {
+      input: message,
+      stdio: ["pipe", "inherit", "inherit"],
     });
 
     if (commitResult.status !== 0) {
