@@ -13,7 +13,7 @@ import {
 } from "../src/git.js";
 import {
   generateCommitMessage,
-  generateDiffExplanation,
+  generateDiffExplanations,
   generateDiffFileName,
 } from "../src/llm.js";
 import { spawnSync } from "child_process";
@@ -259,19 +259,16 @@ const createDiffMarkdown = async (
   stagedFileDiffs: StagedFileDiff[],
   updateStatus: (message: string) => void,
 ) => {
+  updateStatus(`Explaining diffs with AI (${stagedFileDiffs.length} files)`);
+  const explanations = await generateDiffExplanations(stagedFileDiffs, branchName);
   const sections: string[] = [];
 
   for (let index = 0; index < stagedFileDiffs.length; index += 1) {
     const { filePath, diff } = stagedFileDiffs[index];
-    updateStatus(
-      `Explaining diff ${index + 1}/${stagedFileDiffs.length}: ${filePath}`,
-    );
-
-    const explanation = await generateDiffExplanation(
-      filePath,
-      diff,
-      branchName,
-    );
+    updateStatus(`Formatting diff ${index + 1}/${stagedFileDiffs.length}: ${filePath}`);
+    const explanation =
+      explanations.get(filePath) ||
+      `Updates ${filePath} with the staged changes shown below.`;
 
     sections.push(
       [

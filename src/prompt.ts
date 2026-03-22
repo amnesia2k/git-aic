@@ -79,6 +79,45 @@ ${diff}
 Explanation:
 `.trim();
 
+export const buildBatchDiffExplanationsPrompt = (
+  fileDiffs: Array<{ filePath: string; diff: string }>,
+  branchName: string,
+): string =>
+  `
+You are explaining staged git diffs to a developer.
+
+Rules:
+- Write exactly one explanation block for each file shown below
+- Keep each explanation to 2 to 4 short sentences
+- Be concrete and precise
+- Focus on what changed and why it matters
+- No markdown headings
+- No bullet points
+- No code fences
+- Do not restate the diff line by line
+- Use the exact file path provided
+- Return blocks in this exact format:
+FILE: <exact file path>
+EXPLANATION: <plain text explanation>
+END_FILE
+- Return nothing except these blocks
+- The current branch is "${branchName || "unknown"}"
+
+Files and diffs:
+${fileDiffs
+  .map(
+    ({ filePath, diff }) => `
+FILE: ${filePath}
+DIFF:
+${diff}
+END_DIFF
+`.trim(),
+  )
+  .join("\n\n")}
+
+Result:
+`.trim();
+
 export const buildDiffFileNamePrompt = (
   diff: string,
 ): string =>

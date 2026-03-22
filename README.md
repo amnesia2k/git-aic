@@ -14,6 +14,7 @@ Git AIC is an innovative command-line interface (CLI) tool crafted with TypeScri
 - **Organized Diff Storage**: Stores generated diff reports inside a `git-diffs` folder in your current working directory, creating it automatically on first use.
 - **Structured Diff Naming**: Names diff reports with a concise semantic format such as `feat-auth-flow.md` or `fix-config-loading.md`.
 - **Visible Loading States**: Uses `cli-loaders` with the `arrows_3` loader so long-running actions stay visible in the terminal.
+- **Retry-Safe AI Calls**: Retries temporary Gemini rate limits and uses compact fallback text instead of failing the whole diff export.
 - **Error Handling**: Includes robust error handling for API key validation and LLM request failures.
 
 ## Getting Started
