@@ -10,6 +10,7 @@ Git AIC is an innovative command-line interface (CLI) tool crafted with TypeScri
 - **Conventional Commits Adherence**: Automatically formats commit messages according to the Conventional Commits specification, ensuring a clear and structured history.
 - **Interactive Workflow**: Provides an interactive command-line experience using `@clack/prompts` to review, accept, or modify suggested messages before committing.
 - **Branch-Aware Context**: Incorporates the current Git branch name into the commit scope for better contextualization.
+- **Markdown Diff Export**: Can write the current staged diff to a neatly formatted markdown file in your current working directory with `-d`, `--diff`, or `-diff`.
 - **Error Handling**: Includes robust error handling for API key validation and LLM request failures.
 
 ## Getting Started
@@ -72,6 +73,13 @@ Git AIC is designed to be straightforward to use within your Git workflow.
     ```bash
     git aic
     ```
+
+3.  **Export Diff to Markdown**:
+    To save the staged diff as markdown instead of creating a commit, run:
+    ```bash
+    git aic -d
+    ```
+    This writes a file such as `proposed-your-branch.md` in the directory where you ran the command. `--diff` and `-diff` are also supported.
 
 ## Technologies Used
 

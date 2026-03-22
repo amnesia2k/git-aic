@@ -7,15 +7,76 @@ import chalk from "chalk";
 import { getGitDiff, getBranchName } from "../src/git.js";
 import { generateCommitMessage } from "../src/llm.js";
 import { spawnSync } from "child_process";
+import { existsSync, writeFileSync } from "fs";
+import { join } from "path";
 
 const git: SimpleGit = simpleGit();
 const program = new Command();
+
+const normalizeLegacyDiffFlag = () => {
+  for (let index = 2; index < process.argv.length; index += 1) {
+    if (process.argv[index] === "-diff") {
+      process.argv[index] = "--diff";
+    }
+  }
+};
+
+const sanitizeFileSegment = (value: string) =>
+  value
+    .trim()
+    .replace(/[^a-zA-Z0-9-_]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .toLowerCase();
+
+const getAvailableMarkdownPath = (baseName: string) => {
+  const cleanBaseName = sanitizeFileSegment(baseName) || "proposed-diff";
+  const cwd = process.cwd();
+  let candidate = join(cwd, `${cleanBaseName}.md`);
+  let counter = 1;
+
+  while (existsSync(candidate)) {
+    candidate = join(cwd, `${cleanBaseName}-${counter}.md`);
+    counter += 1;
+  }
+
+  return candidate;
+};
+
+const createDiffMarkdown = (
+  diff: string,
+  branchName: string,
+  stagedFiles: string[],
+) => {
+  const lines = [
+    "# Proposed Diff",
+    "",
+    `Generated: ${new Date().toISOString()}`,
+    `Branch: ${branchName || "unknown"}`,
+    "",
+    "## Staged Files",
+    "",
+    ...(stagedFiles.length > 0
+      ? stagedFiles.map((file) => `- ${file}`)
+      : ["- No staged files detected"]),
+    "",
+    "## Diff",
+    "",
+    "```diff",
+    diff.trimEnd(),
+    "```",
+    "",
+  ];
+
+  return lines.join("\n");
+};
 
 program
   .name("commit")
   .description("AI-powered Git commit using Google Gemini")
   .version("1.0.0")
-  .option("-p, --push", "push after committing");
+  .option("-p, --push", "push after committing")
+  .option("-d, --diff", "write the staged diff to a markdown file");
 
 program.action(async (options) => {
   try {
@@ -105,6 +166,19 @@ program.action(async (options) => {
     status.staged.forEach((file) => console.log(chalk.cyan(`- ${file}`)));
     console.log("");
 
+    if (options.diff) {
+      const branchName = await getBranchName();
+      const defaultFileName = branchName
+        ? `proposed-${sanitizeFileSegment(branchName)}`
+        : "proposed-diff";
+      const markdownPath = getAvailableMarkdownPath(defaultFileName);
+      const markdown = createDiffMarkdown(finalDiff, branchName, status.staged);
+
+      writeFileSync(markdownPath, markdown, "utf8");
+      console.log(chalk.green(`Diff markdown written to ${markdownPath}`));
+      process.exit(0);
+    }
+
     console.log(chalk.blue("Analyzing staged changes...\n"));
     const branchName = await getBranchName();
     const message = await generateCommitMessage(finalDiff, branchName);
@@ -150,4 +224,5 @@ program.action(async (options) => {
   }
 });
 
+normalizeLegacyDiffFlag();
 program.parse(process.argv);
