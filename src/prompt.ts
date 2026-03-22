@@ -50,3 +50,53 @@ ${diff}
 
 Commit message:
 `.trim();
+
+export const buildDiffExplanationPrompt = (
+  filePath: string,
+  diff: string,
+  branchName: string,
+): string =>
+  `
+You are explaining a staged git diff to a developer.
+
+Rules:
+- Explain only the changes shown for this file
+- Write 2 to 4 short sentences
+- Be concrete and precise
+- Focus on what changed and why it matters
+- No markdown headings
+- No bullet points
+- No code fences
+- Do not restate the entire diff line by line
+- The current branch is "${branchName || "unknown"}"
+
+File:
+${filePath}
+
+Diff:
+${diff}
+
+Explanation:
+`.trim();
+
+export const buildDiffFileNamePrompt = (
+  diff: string,
+  branchName: string,
+): string =>
+  `
+Generate a precise filename slug for a markdown report of these staged changes.
+
+Rules:
+- Return only the filename slug
+- Use lowercase letters, numbers, and hyphens only
+- Do not include the .md extension
+- Keep it between 3 and 8 words
+- Make it specific to the actual changes
+- Do not include markdown, quotes, or explanations
+- The branch is "${branchName || "unknown"}"
+
+Git diff:
+${diff}
+
+Filename slug:
+`.trim();

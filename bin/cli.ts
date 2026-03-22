@@ -4,14 +4,99 @@ import { Command } from "commander";
 import { simpleGit } from "simple-git";
 import type { SimpleGit } from "simple-git";
 import chalk from "chalk";
-import { getGitDiff, getBranchName } from "../src/git.js";
-import { generateCommitMessage } from "../src/llm.js";
+import {
+  getGitDiff,
+  getBranchName,
+  getStagedFileDiffs,
+  type StagedFileDiff,
+} from "../src/git.js";
+import {
+  generateCommitMessage,
+  generateDiffExplanation,
+  generateDiffFileName,
+} from "../src/llm.js";
 import { spawnSync } from "child_process";
-import { existsSync, writeFileSync } from "fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+} from "fs";
 import { join } from "path";
 
 const git: SimpleGit = simpleGit();
 const program = new Command();
+
+const SPINNER_FRAMES = ["|", "/", "-", "\\"];
+
+const createLoader = () => {
+  let timer: NodeJS.Timeout | null = null;
+  let frameIndex = 0;
+  let message = "";
+
+  const render = () => {
+    if (!process.stdout.isTTY) {
+      return;
+    }
+
+    const frame = SPINNER_FRAMES[frameIndex % SPINNER_FRAMES.length];
+    frameIndex += 1;
+    process.stdout.write(`\r${chalk.cyan(frame)} ${message}`);
+  };
+
+  const clear = () => {
+    if (!process.stdout.isTTY) {
+      return;
+    }
+
+    process.stdout.clearLine(0);
+    process.stdout.cursorTo(0);
+  };
+
+  return {
+    start(nextMessage: string) {
+      message = nextMessage;
+      frameIndex = 0;
+      render();
+
+      if (timer) {
+        clearInterval(timer);
+      }
+
+      timer = setInterval(render, 80);
+    },
+    update(nextMessage: string) {
+      message = nextMessage;
+      render();
+    },
+    succeed(doneMessage: string) {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+
+      clear();
+      console.log(chalk.green(`OK ${doneMessage}`));
+    },
+    fail(errorMessage: string) {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+
+      clear();
+      console.log(chalk.red(`ERROR ${errorMessage}`));
+    },
+    stop() {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+
+      clear();
+    },
+  };
+};
 
 const normalizeLegacyDiffFlag = () => {
   for (let index = 2; index < process.argv.length; index += 1) {
@@ -29,43 +114,190 @@ const sanitizeFileSegment = (value: string) =>
     .replace(/^-|-$/g, "")
     .toLowerCase();
 
-const getAvailableMarkdownPath = (baseName: string) => {
+const getChangedFiles = (status: Awaited<ReturnType<SimpleGit["status"]>>) =>
+  Array.from(
+    new Set([
+      ...status.staged,
+      ...status.modified,
+      ...status.not_added,
+      ...status.created,
+      ...status.deleted,
+    ]),
+  );
+
+const unstageFiles = async (files: string[]) => {
+  if (files.length === 0) {
+    return;
+  }
+
+  const restoreResult = spawnSync(
+    "git",
+    ["restore", "--staged", "--", ...files],
+    { stdio: "ignore" },
+  );
+
+  if (restoreResult.status === 0) {
+    return;
+  }
+
+  const resetResult = spawnSync("git", ["reset", "HEAD", "--", ...files], {
+    stdio: "ignore",
+  });
+
+  if (resetResult.status !== 0) {
+    throw new Error("Failed to update staged file selection");
+  }
+};
+
+const selectFilesForOperation = async (
+  actionLabel: string,
+  status: Awaited<ReturnType<SimpleGit["status"]>>,
+) => {
+  const changedFiles = getChangedFiles(status);
+
+  if (changedFiles.length === 0) {
+    return;
+  }
+
+  if (changedFiles.length === 1) {
+    const onlyFile = changedFiles[0];
+
+    if (!status.staged.includes(onlyFile)) {
+      console.log(chalk.cyan(`\nOnly one changed file found: ${onlyFile}`));
+      console.log(chalk.blue("Staging 1 file..."));
+      await git.add(onlyFile);
+    }
+
+    return;
+  }
+
+  const p = await import("@clack/prompts");
+
+  p.intro(chalk.bgCyan(chalk.black(" Git AIC ")));
+
+  const selectedFiles = await p.multiselect({
+    message: `Select the files you want to ${actionLabel}:`,
+    options: changedFiles.map((file) => ({
+      value: file,
+      label: status.staged.includes(file) ? `${file} (staged)` : file,
+    })),
+    initialValues: status.staged,
+    required: false,
+  });
+
+  if (
+    p.isCancel(selectedFiles) ||
+    !selectedFiles ||
+    (selectedFiles as string[]).length === 0
+  ) {
+    p.outro(chalk.yellow("No files selected. Exiting."));
+    process.exit(0);
+  }
+
+  const filesToUse = selectedFiles as string[];
+  const filesToUnstage = status.staged.filter((file) => !filesToUse.includes(file));
+  const filesToStage = filesToUse.filter((file) => !status.staged.includes(file));
+
+  if (filesToUnstage.length > 0) {
+    await unstageFiles(filesToUnstage);
+  }
+
+  if (filesToStage.length > 0) {
+    p.outro(chalk.blue(`Staging ${filesToStage.length} file(s)...`));
+    await git.add(filesToStage);
+  } else {
+    p.outro(chalk.blue(`Using ${filesToUse.length} selected file(s)...`));
+  }
+};
+
+const getAvailableMarkdownPath = (directory: string, baseName: string) => {
   const cleanBaseName = sanitizeFileSegment(baseName) || "proposed-diff";
-  const cwd = process.cwd();
-  let candidate = join(cwd, `${cleanBaseName}.md`);
+  let candidate = join(directory, `${cleanBaseName}.md`);
   let counter = 1;
 
   while (existsSync(candidate)) {
-    candidate = join(cwd, `${cleanBaseName}-${counter}.md`);
+    candidate = join(directory, `${cleanBaseName}-${counter}.md`);
     counter += 1;
   }
 
   return candidate;
 };
 
-const createDiffMarkdown = (
-  diff: string,
+const ensureGitDiffsIgnored = () => {
+  const gitignorePath = join(process.cwd(), ".gitignore");
+  const ignoreEntry = "git-diffs/";
+
+  if (!existsSync(gitignorePath)) {
+    writeFileSync(gitignorePath, `${ignoreEntry}\n`, "utf8");
+    return;
+  }
+
+  const currentContents = readFileSync(gitignorePath, "utf8");
+  const normalizedEntries = currentContents
+    .split(/\r?\n/)
+    .map((line) => line.trim());
+
+  if (
+    normalizedEntries.includes(ignoreEntry) ||
+    normalizedEntries.includes("/git-diffs/") ||
+    normalizedEntries.includes("git-diffs") ||
+    normalizedEntries.includes("/git-diffs")
+  ) {
+    return;
+  }
+
+  const separator = currentContents.endsWith("\n") || currentContents.length === 0
+    ? ""
+    : "\n";
+
+  writeFileSync(
+    gitignorePath,
+    `${currentContents}${separator}${ignoreEntry}\n`,
+    "utf8",
+  );
+};
+
+const createDiffMarkdown = async (
   branchName: string,
-  stagedFiles: string[],
+  stagedFileDiffs: StagedFileDiff[],
+  updateStatus: (message: string) => void,
 ) => {
+  const sections: string[] = [];
+
+  for (let index = 0; index < stagedFileDiffs.length; index += 1) {
+    const { filePath, diff } = stagedFileDiffs[index];
+    updateStatus(
+      `Explaining diff ${index + 1}/${stagedFileDiffs.length}: ${filePath}`,
+    );
+
+    const explanation = await generateDiffExplanation(filePath, diff, branchName);
+
+    sections.push(
+      [
+        `## ${filePath}`,
+        "",
+        explanation.trim(),
+        "",
+        "```diff",
+        diff.trimEnd(),
+        "```",
+      ].join("\n"),
+    );
+  }
+
   const lines = [
     "# Proposed Diff",
     "",
     `Generated: ${new Date().toISOString()}`,
     `Branch: ${branchName || "unknown"}`,
     "",
-    "## Staged Files",
+    "## Files",
     "",
-    ...(stagedFiles.length > 0
-      ? stagedFiles.map((file) => `- ${file}`)
+    ...(stagedFileDiffs.length > 0
+      ? stagedFileDiffs.map(({ filePath }) => `- ${filePath}`)
       : ["- No staged files detected"]),
     "",
-    "## Diff",
-    "",
-    "```diff",
-    diff.trimEnd(),
-    "```",
-    "",
+    ...sections.flatMap((section) => [section, ""]),
   ];
 
   return lines.join("\n");
@@ -79,109 +311,100 @@ program
   .option("-d, --diff", "write the staged diff to a markdown file");
 
 program.action(async (options) => {
+  const loader = createLoader();
+
   try {
-    const diff = await getGitDiff();
+    loader.start("Inspecting repository changes");
+    let status = await git.status();
 
-    if (!diff) {
-      console.log(chalk.yellow("No staged changes found."));
-      console.log(chalk.cyan("Fetching unstaged changes..."));
-
-      const status = await git.status();
-
-      // Automatically stage deleted files
-      if (status.deleted.length > 0) {
-        console.log(
-          chalk.cyan(
-            `Auto-staging ${status.deleted.length} deleted file(s)...`,
-          ),
-        );
-        await git.add(status.deleted);
-      }
-
-      const uncommittedFiles = [
-        ...status.modified,
-        ...status.not_added,
-        ...status.created,
-      ];
-
-      // Remove duplicates
-      const uniqueFiles = Array.from(new Set(uncommittedFiles));
-
-      if (uniqueFiles.length === 0) {
-        // If there were only deleted files, we might be good to go now!
-        const postStageDiff = await getGitDiff();
-        if (postStageDiff) {
-          console.log(chalk.green("Auto-staged deleted files successfully."));
-        } else {
-          console.log(chalk.yellow("No files changed in this repository."));
-          process.exit(0);
-        }
-      } else if (uniqueFiles.length === 1) {
-        console.log(
-          chalk.cyan(`\nOnly one unstaged file found: ${uniqueFiles[0]}`),
-        );
-        console.log(chalk.blue(`Staging 1 file(s)...`));
-        await git.add(uniqueFiles[0]);
-      } else {
-        console.log();
-        const p = await import("@clack/prompts");
-
-        p.intro(chalk.bgCyan(chalk.black(" Git AIC ")));
-
-        const selectedFiles = await p.multiselect({
-          message:
-            "Select the files you want to stage and commit (space to select files, a to select all, enter to continue, arrows to scroll):",
-          options: uniqueFiles.map((file) => ({ value: file, label: file })),
-          required: false,
-        });
-
-        if (
-          p.isCancel(selectedFiles) ||
-          !selectedFiles ||
-          (selectedFiles as string[]).length === 0
-        ) {
-          // Check if deleted files were staged
-          const postStageDiff = await getGitDiff();
-          if (!postStageDiff) {
-            p.outro(chalk.yellow("No files selected. Exiting."));
-            process.exit(0);
-          }
-        } else {
-          const filesToStage = selectedFiles as string[];
-          p.outro(chalk.blue(`Staging ${filesToStage.length} file(s)...`));
-          await git.add(filesToStage);
-        }
-      }
+    if (status.deleted.length > 0) {
+      loader.update(`Auto-staging ${status.deleted.length} deleted file(s)`);
+      await git.add(status.deleted);
+      status = await git.status();
     }
 
-    // Re-check diff after potential staging
+    const changedFiles = getChangedFiles(status);
+
+    if (changedFiles.length === 0) {
+      loader.stop();
+      console.log(chalk.yellow("No files changed in this repository."));
+      process.exit(0);
+    }
+
+    const actionLabel = options.diff
+      ? "include in the diff report"
+      : options.push
+        ? "commit and push"
+        : "commit";
+
+    if (changedFiles.length > 1) {
+      loader.stop();
+      await selectFilesForOperation(actionLabel, status);
+    } else if (!status.staged.includes(changedFiles[0])) {
+      loader.stop();
+      await selectFilesForOperation(actionLabel, status);
+    } else {
+      loader.succeed("Using the currently staged file selection");
+    }
+
+    loader.start("Checking staged changes");
     const finalDiff = await getGitDiff();
+
     if (!finalDiff) {
+      loader.stop();
       console.log(chalk.yellow("Still no changes to commit!"));
       process.exit(0);
     }
 
-    const status = await git.status();
-    console.log(chalk.blue("\nFiles being committed:"));
+    status = await git.status();
+    loader.succeed(
+      options.diff
+        ? "Collected staged changes for diff report"
+        : "Collected staged changes for commit",
+    );
+    console.log(
+      chalk.blue(
+        options.diff ? "\nFiles being documented:" : "\nFiles being committed:",
+      ),
+    );
     status.staged.forEach((file) => console.log(chalk.cyan(`- ${file}`)));
     console.log("");
 
     if (options.diff) {
       const branchName = await getBranchName();
-      const defaultFileName = branchName
-        ? `proposed-${sanitizeFileSegment(branchName)}`
-        : "proposed-diff";
-      const markdownPath = getAvailableMarkdownPath(defaultFileName);
-      const markdown = createDiffMarkdown(finalDiff, branchName, status.staged);
+      loader.start("Collecting per-file staged diffs");
+      const stagedFileDiffs = await getStagedFileDiffs();
+      const outputDirectory = join(process.cwd(), "git-diffs");
+      const outputDirectoryExists = existsSync(outputDirectory);
 
+      loader.update("Preparing git-diffs output folder");
+      mkdirSync(outputDirectory, { recursive: true });
+
+      if (!outputDirectoryExists) {
+        loader.update("Adding git-diffs to .gitignore");
+        ensureGitDiffsIgnored();
+      }
+
+      loader.update("Generating AI report filename");
+      const aiFileName = await generateDiffFileName(finalDiff, branchName);
+      const markdownPath = getAvailableMarkdownPath(outputDirectory, aiFileName);
+
+      const markdown = await createDiffMarkdown(
+        branchName,
+        stagedFileDiffs,
+        (message) => loader.update(message),
+      );
+
+      loader.update("Writing markdown report");
       writeFileSync(markdownPath, markdown, "utf8");
-      console.log(chalk.green(`Diff markdown written to ${markdownPath}`));
+      loader.succeed(`Diff markdown written to ${markdownPath}`);
       process.exit(0);
     }
 
-    console.log(chalk.blue("Analyzing staged changes...\n"));
+    loader.start("Analyzing staged changes with AI");
     const branchName = await getBranchName();
     const message = await generateCommitMessage(finalDiff, branchName);
+    loader.succeed("Commit message generated");
 
     console.log(chalk.green("Commit message generated:\n"));
     console.log(chalk.green(`"${message}"\n`));
@@ -216,9 +439,11 @@ program.action(async (options) => {
       error.message?.includes("force closed") ||
       error.message?.includes("Prompt was canceled")
     ) {
+      loader.stop();
       console.log(chalk.yellow("\nCommit cancelled."));
       process.exit(0);
     }
+    loader.fail("Command failed");
     console.error(chalk.red("Commit failed:"), error);
     process.exit(1);
   }

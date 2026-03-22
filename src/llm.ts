@@ -1,6 +1,10 @@
 import axios from "axios";
 import chalk from "chalk";
-import { buildPrompt } from "./prompt.js";
+import {
+  buildDiffExplanationPrompt,
+  buildDiffFileNamePrompt,
+  buildPrompt,
+} from "./prompt.js";
 
 interface GeminiPart {
   text?: string;
@@ -18,13 +22,13 @@ interface GeminiResponse {
   candidates: GeminiCandidate[];
 }
 
-export const generateCommitMessage = async (
-  rawDiff: string,
-  branchName: string,
-): Promise<string> => {
-  const API_URL =
-    "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent";
-  const API_KEY: string = process.env.GEMINI_COMMIT_MESSAGE_API_KEY!;
+const API_URL =
+  "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent";
+
+const getApiKey = () => process.env.GEMINI_COMMIT_MESSAGE_API_KEY || "";
+
+const ensureApiKey = () => {
+  const API_KEY = getApiKey();
 
   if (!API_KEY) {
     console.error(
@@ -49,7 +53,12 @@ export const generateCommitMessage = async (
 
     process.exit(1);
   }
-  const prompt = buildPrompt(rawDiff, branchName);
+
+  return API_KEY;
+};
+
+const requestText = async (prompt: string, fallback: string) => {
+  const API_KEY = ensureApiKey();
 
   try {
     const response = await axios.post<GeminiResponse>(
@@ -65,12 +74,49 @@ export const generateCommitMessage = async (
       },
     );
 
-    return (
-      response.data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
-      "chore: update code"
-    );
+    return response.data.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
+      ? response.data.candidates[0].content!.parts![0].text!.trim()
+      : fallback;
   } catch (error) {
     console.error("LLM request failed:", error);
-    return "chore: update code";
+    return fallback;
   }
+};
+
+export const generateCommitMessage = async (
+  rawDiff: string,
+  branchName: string,
+): Promise<string> => {
+  const prompt = buildPrompt(rawDiff, branchName);
+
+  return requestText(prompt, "chore: update code");
+};
+
+export const generateDiffExplanation = async (
+  filePath: string,
+  rawDiff: string,
+  branchName: string,
+): Promise<string> => {
+  const prompt = buildDiffExplanationPrompt(filePath, rawDiff, branchName);
+
+  return requestText(
+    prompt,
+    `Updates ${filePath} with the staged changes shown below.`,
+  );
+};
+
+export const generateDiffFileName = async (
+  rawDiff: string,
+  branchName: string,
+): Promise<string> => {
+  const prompt = buildDiffFileNamePrompt(rawDiff, branchName);
+  const rawName = await requestText(prompt, `proposed-${branchName || "diff"}`);
+
+  return rawName
+    .trim()
+    .toLowerCase()
+    .replace(/\.md$/i, "")
+    .replace(/[^a-z0-9-]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "") || "proposed-diff";
 };
