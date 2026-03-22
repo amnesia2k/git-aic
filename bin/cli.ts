@@ -9,9 +9,10 @@ import {
   getGitDiff,
   getBranchName,
   getHeadCommitInfo,
-  getStagedFileDiffs,
+  getSelectedFileDiffs,
+  getSelectedFilesDiff,
   type HeadCommitInfo,
-  type StagedFileDiff,
+  type FileDiff,
 } from "../src/git.js";
 import {
   generateCommitMessage,
@@ -148,6 +149,7 @@ const unstageFiles = async (files: string[]) => {
 const selectFilesForOperation = async (
   actionLabel: string,
   status: Awaited<ReturnType<SimpleGit["status"]>>,
+  shouldStageSelection: boolean,
 ) => {
   const changedFiles = getChangedFiles(status);
 
@@ -158,13 +160,13 @@ const selectFilesForOperation = async (
   if (changedFiles.length === 1) {
     const onlyFile = changedFiles[0];
 
-    if (!status.staged.includes(onlyFile)) {
+    if (shouldStageSelection && !status.staged.includes(onlyFile)) {
       console.log(chalk.cyan(`\nOnly one changed file found: ${onlyFile}`));
       console.log(chalk.blue("Staging 1 file..."));
       await git.add(onlyFile);
     }
 
-    return;
+    return [onlyFile];
   }
 
   const p = await import("@clack/prompts");
@@ -191,6 +193,11 @@ const selectFilesForOperation = async (
   }
 
   const filesToUse = selectedFiles as string[];
+  if (!shouldStageSelection) {
+    p.outro(chalk.blue(`Using ${filesToUse.length} selected file(s)...`));
+    return filesToUse;
+  }
+
   const filesToUnstage = status.staged.filter(
     (file) => !filesToUse.includes(file),
   );
@@ -208,6 +215,8 @@ const selectFilesForOperation = async (
   } else {
     p.outro(chalk.blue(`Using ${filesToUse.length} selected file(s)...`));
   }
+
+  return filesToUse;
 };
 
 const getAvailableMarkdownPath = (directory: string, baseName: string) => {
@@ -259,19 +268,19 @@ const ensureGitDiffsIgnored = () => {
 const createDiffMarkdown = async (
   branchName: string,
   headCommit: HeadCommitInfo,
-  stagedFileDiffs: StagedFileDiff[],
+  fileDiffs: FileDiff[],
   updateStatus: (message: string) => void,
 ) => {
-  updateStatus(`Explaining diffs with AI (${stagedFileDiffs.length} files)`);
-  const explanations = await generateDiffExplanations(stagedFileDiffs, branchName);
+  updateStatus(`Explaining diffs with AI (${fileDiffs.length} files)`);
+  const explanations = await generateDiffExplanations(fileDiffs, branchName);
   const sections: string[] = [];
 
-  for (let index = 0; index < stagedFileDiffs.length; index += 1) {
-    const { filePath, diff } = stagedFileDiffs[index];
-    updateStatus(`Formatting diff ${index + 1}/${stagedFileDiffs.length}: ${filePath}`);
+  for (let index = 0; index < fileDiffs.length; index += 1) {
+    const { filePath, diff } = fileDiffs[index];
+    updateStatus(`Formatting diff ${index + 1}/${fileDiffs.length}: ${filePath}`);
     const explanation =
       explanations.get(filePath) ||
-      `Updates ${filePath} with the staged changes shown below.`;
+      `Updates ${filePath} with the selected changes shown below.`;
 
     sections.push(
       [
@@ -298,8 +307,8 @@ const createDiffMarkdown = async (
     "",
     "## Files",
     "",
-    ...(stagedFileDiffs.length > 0
-      ? stagedFileDiffs.map(({ filePath }) => `- ${filePath}`)
+    ...(fileDiffs.length > 0
+      ? fileDiffs.map(({ filePath }) => `- ${filePath}`)
       : ["- No staged files detected"]),
     "",
     ...sections.flatMap((section) => [section, ""]),
@@ -313,7 +322,7 @@ program
   .description("AI-powered Git commit using Google Gemini")
   .version("1.0.0")
   .option("-p, --push", "push after committing")
-  .option("-d, --diff", "write the staged diff to a markdown file");
+  .option("-d, --diff", "write selected changes to a markdown diff report");
 
 program.action(async (options) => {
   const loader = createLoader();
@@ -322,7 +331,7 @@ program.action(async (options) => {
     loader.start("Inspecting repository changes");
     let status = await git.status();
 
-    if (status.deleted.length > 0) {
+    if (!options.diff && status.deleted.length > 0) {
       loader.update(`Auto-staging ${status.deleted.length} deleted file(s)`);
       await git.add(status.deleted);
       status = await git.status();
@@ -341,30 +350,47 @@ program.action(async (options) => {
       : options.push
         ? "commit and push"
         : "commit";
+    let selectedFiles: string[] = [];
 
     if (changedFiles.length > 1) {
       loader.stop();
-      await selectFilesForOperation(actionLabel, status);
+      selectedFiles =
+        (await selectFilesForOperation(actionLabel, status, !options.diff)) || [];
     } else if (!status.staged.includes(changedFiles[0])) {
       loader.stop();
-      await selectFilesForOperation(actionLabel, status);
+      selectedFiles =
+        (await selectFilesForOperation(actionLabel, status, !options.diff)) || [];
     } else {
-      loader.succeed("Using the currently staged file selection");
+      selectedFiles = options.diff ? changedFiles : status.staged;
+      loader.succeed(
+        options.diff
+          ? "Using the currently selected file set for diff report"
+          : "Using the currently staged file selection",
+      );
     }
 
-    loader.start("Checking staged changes");
-    const finalDiff = await getGitDiff();
+    loader.start(options.diff ? "Checking selected changes" : "Checking staged changes");
+    const finalDiff = options.diff
+      ? await getSelectedFilesDiff(selectedFiles)
+      : await getGitDiff();
 
     if (!finalDiff) {
       loader.stop();
-      console.log(chalk.yellow("Still no changes to commit!"));
+      console.log(
+        chalk.yellow(
+          options.diff
+            ? "No selected changes found for the diff report!"
+            : "Still no changes to commit!",
+        ),
+      );
       process.exit(0);
     }
 
     status = await git.status();
+    const filesBeingUsed = options.diff ? selectedFiles : status.staged;
     loader.succeed(
       options.diff
-        ? "Collected staged changes for diff report"
+        ? "Collected selected changes for diff report"
         : "Collected staged changes for commit",
     );
     console.log(
@@ -372,14 +398,14 @@ program.action(async (options) => {
         options.diff ? "\nFiles being documented:" : "\nFiles being committed:",
       ),
     );
-    status.staged.forEach((file) => console.log(chalk.cyan(`- ${file}`)));
+    filesBeingUsed.forEach((file) => console.log(chalk.cyan(`- ${file}`)));
     console.log("");
 
     if (options.diff) {
       const branchName = await getBranchName();
       const headCommit = await getHeadCommitInfo();
-      loader.start("Collecting per-file staged diffs");
-      const stagedFileDiffs = await getStagedFileDiffs();
+      loader.start("Collecting selected file diffs");
+      const fileDiffs = await getSelectedFileDiffs(selectedFiles);
       const outputDirectory = join(process.cwd(), "git-diffs");
       const outputDirectoryExists = existsSync(outputDirectory);
 
@@ -401,7 +427,7 @@ program.action(async (options) => {
       const markdown = await createDiffMarkdown(
         branchName,
         headCommit,
-        stagedFileDiffs,
+        fileDiffs,
         (message) => loader.update(message),
       );
 

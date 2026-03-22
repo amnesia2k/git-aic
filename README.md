@@ -1,89 +1,202 @@
-# **Git AIC: AI-Powered Conventional Commits**
+# Git AIC: AI-Powered Conventional Commits
 
-## Overview
+Git AIC is a TypeScript CLI for two related workflows inside a Git repository:
 
-Git AIC is an innovative command-line interface (CLI) tool crafted with TypeScript and Node.js that automates the generation of Conventional Git commit messages. By leveraging Google's Gemini Large Language Model (LLM), it analyzes your staged code changes to propose consistent, high-quality, and descriptive commit messages, significantly enhancing your project's commit history.
+- generating AI-assisted conventional commit messages from staged changes
+- generating AI-explained markdown diff reports from selected working-tree changes
 
-## Features
+It is built for local Git usage with interactive file selection, Gemini-based summarization, and a low-friction terminal UX.
 
-- **AI-Powered Generation**: Utilizes the Google Gemini LLM to intelligently analyze staged Git diffs and suggest commit messages.
-- **Conventional Commits Adherence**: Automatically formats commit messages according to the Conventional Commits specification, ensuring a clear and structured history.
-- **Interactive Workflow**: Provides an interactive command-line experience using `@clack/prompts` to review, accept, or modify suggested messages before committing.
-- **Branch-Aware Context**: Incorporates the current Git branch name into the commit scope for better contextualization.
-- **AI Diff Reports**: Can write the current staged diff to an AI-explained markdown report, with each file explained separately for readability.
-- **Organized Diff Storage**: Stores generated diff reports inside a `git-diffs` folder in your current working directory, creating it automatically on first use.
-- **Structured Diff Naming**: Names diff reports with a concise semantic format such as `feat-auth-flow.md` or `fix-config-loading.md`.
-- **Visible Loading States**: Uses `cli-loaders` with the `arrows_3` loader so long-running actions stay visible in the terminal.
-- **Retry-Safe AI Calls**: Retries temporary Gemini rate limits and uses compact fallback text instead of failing the whole diff export.
-- **Error Handling**: Includes robust error handling for API key validation and LLM request failures.
+## What It Does
 
-## Getting Started
+### Commit flow
 
-To get Git AIC up and running on your local machine, follow these simple steps.
+`git aic`
 
-### Installation
+- inspects the repository for changed files
+- auto-stages deleted files for commit workflows
+- lets you choose which files should be part of the commit when there are multiple changed files
+- stages newly selected files and unstages deselected staged files
+- sends the staged diff to Gemini
+- generates a Conventional Commits style message
+- commits with that message
 
-1.  **Clone the Repository**:
-    ```bash
-    git clone https://github.com/amnesia2k/git-aic.git
-    cd git-aic
-    ```
-2.  **Install Dependencies**:
-    ```bash
-    bun install # or yarn install or pnpm install
-    ```
+`git aic --push / git aic -p`
 
-### Environment Variables
+- runs the same commit flow
+- pushes after a successful commit
 
-Before running Git AIC, you must configure your Google Gemini API key.
+### Diff report flow
 
-- `GEMINI_COMMIT_MESSAGE_API_KEY`: Your API key for accessing the Google Gemini API. This is crucial for the LLM integration.
+`git aic --diff / git aic -d`
 
-  _Example (macOS / Linux):_
+- inspects the repository for changed files
+- lets you choose which files should be included in the report when there are multiple changed files
+- does **not** stage or unstage files for the diff workflow
+- reads the selected changes directly from the working tree
+- generates a markdown report in `git-diffs/`
+- explains each selected file diff with AI
+- includes current repo metadata such as branch and base commit hash
 
-  ```bash
-  export GEMINI_COMMIT_MESSAGE_API_KEY=your_gemini_api_key_here
-  ```
+## Key Behaviors
 
-  _Example (Windows):_
+- **Conventional commit generation**: Commit messages are guided by strict prompt rules.
+- **Single logical change stays one line**: If multiple files all belong to one logical change, the generated commit message stays a one-line summary.
+- **Unrelated changes may become a list**: If the changes are clearly unrelated, the generated commit message may use a summary line plus bullet points.
+- **Interactive file selection**: Multi-file changes open a selector so the user can choose the exact file set to commit, push, or document.
+- **AI diff reports**: Diff reports explain the selected changes before showing the raw patch.
+- **Structured diff naming**: Report filenames use a concise `type-topic.md` format such as `feat-auth-flow.md`.
+- **Organized output**: Reports are written to `git-diffs/` in the current working directory.
+- **Git ignore support**: On the first diff report run that creates `git-diffs/`, the tool adds `git-diffs/` to the current directory’s `.gitignore` if it is not already ignored.
+- **Visible loading states**: Uses `cli-loaders` with the `arrows_3` loader and step-specific status messages.
+- **Retry-safe AI requests**: Retries temporary Gemini rate limits and transient failures, then falls back cleanly if needed.
 
-  ```powershell
-  setx GEMINI_COMMIT_MESSAGE_API_KEY "your_gemini_api_key_here"
-  ```
+## Diff Report Contents
 
-  **Important**: After setting the environment variable, restart your terminal for the changes to take effect.
+Each generated markdown report includes:
+
+- report title
+- metadata section
+- generated timestamp
+- current branch
+- short base commit hash
+- full base commit hash
+- selected file list
+- one section per file
+- AI explanation above the raw diff block
+
+## Installation
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/amnesia2k/git-aic.git
+cd git-aic
+```
+
+2. Install dependencies:
+
+```bash
+bun install
+```
+
+You can also use `npm`, `pnpm`, or `yarn` if that fits your environment.
+
+## Environment Variable
+
+Git AIC requires a Gemini API key.
+
+Variable:
+
+- `GEMINI_COMMIT_MESSAGE_API_KEY`
+
+Example:
+
+```bash
+export GEMINI_COMMIT_MESSAGE_API_KEY=your_gemini_api_key_here
+```
+
+Windows PowerShell:
+
+```powershell
+setx GEMINI_COMMIT_MESSAGE_API_KEY "your_gemini_api_key_here"
+```
+
+Restart the terminal after setting the variable.
 
 ## Usage
 
-Git AIC is designed to be straightforward to use within your Git workflow.
+### Git alias
 
-1.  **Set up Git Alias**:
-    To manually run Git AIC from any git repository on your computer, configure a global git alias pointing to the absolute path of the `bin/cli.ts` file on your machine. Just update the path below to match where you cloned the project:
+Windows:
 
-    _Windows:_
+```bash
+git config --global alias.aic '!npx tsx "C:/Users/YourName/path/to/git-aic/bin/cli.ts"'
+```
 
-    ```bash
-    git config --global alias.aic '!npx tsx "C:/Users/YourName/path/to/git-aic/bin/cli.ts"'
-    ```
+macOS / Linux:
 
-    _macOS / Linux:_
+```bash
+git config --global alias.aic '!npx tsx "/Users/YourName/path/to/git-aic/bin/cli.ts"'
+```
 
-    ```bash
-    git config --global alias.aic '!npx tsx "/Users/YourName/path/to/git-aic/bin/cli.ts"'
-    ```
+### Commands
 
-2.  **Generate and Commit**:
-    Execute the customized git command. The tool will automatically auto-stage deleted files, prompt you interactively to stage any remaining untracked/modified files, analyze the diffs, and generate your conventional commit message!
-    ```bash
-    git aic
-    ```
+Generate and create a commit:
 
-3.  **Export Diff to Markdown**:
-    To save the staged diff as markdown instead of creating a commit, run:
-    ```bash
-    git aic -d
-    ```
-    This writes a file inside `git-diffs/` in the directory where you ran the command. Filenames follow a concise semantic format such as `feat-auth-flow.md`, and each file diff is explained before the raw patch is shown. `--diff` and `-diff` are also supported.
+```bash
+git aic
+```
+
+Generate, commit, and push:
+
+```bash
+git aic --push
+```
+
+Generate a markdown diff report:
+
+```bash
+git aic --diff
+```
+
+Also supported:
+
+```bash
+git aic -diff
+git aic -d
+git aic -p
+```
+
+## Important Workflow Notes
+
+### Commit mode stages files
+
+Commit workflows are based on the staged diff.
+
+When you select files for commit mode:
+
+- unselected staged files are unstaged
+- selected unstaged files are staged
+- the final commit message is generated from the resulting staged diff
+
+### Diff mode does not stage files
+
+Diff report workflows are based on the selected changes directly.
+
+When you select files for `-d` / `--diff`:
+
+- the tool does not stage files
+- the tool does not unstage files
+- the tool reads the selected diffs and generates the markdown report from them
+
+This keeps the report flow non-destructive and avoids changing index state unnecessarily.
+
+## Example Output Location
+
+Example generated report paths:
+
+- `git-diffs/feat-auth-flow.md`
+- `git-diffs/fix-config-loading.md`
+- `git-diffs/refactor-cli-loader.md`
+
+If a filename already exists, numeric suffixes are used:
+
+- `feat-auth-flow.md`
+- `feat-auth-flow-1.md`
+- `feat-auth-flow-2.md`
+
+<!-- ## Tech Stack
+
+- TypeScript
+- Node.js
+- Commander.js
+- Chalk
+- `@clack/prompts`
+- `simple-git`
+- Axios
+- Google Gemini
+- `cli-loaders` -->
 
 ## Technologies Used
 
@@ -102,11 +215,11 @@ Git AIC is designed to be straightforward to use within your Git workflow.
 
 We welcome contributions to Git AIC! If you have suggestions for improvements or new features, please feel free to contribute.
 
-- ✨ Fork the repository to your GitHub account.
-- 🛠️ Create a new branch for your feature or bug fix: `git checkout -b feature/your-feature-name`.
-- 💡 Implement your changes and ensure they align with the project's coding style.
-- 📝 Commit your changes with a descriptive, Conventional Commit-style message.
-- 🚀 Push your branch and open a pull request. -->
+-- ✨ Fork the repository to your GitHub account.
+-- 🛠️ Create a new branch for your feature or bug fix: `git checkout -b feature/your-feature-name`.
+-- 💡 Implement your changes and ensure they align with the project's coding style.
+-- 📝 Commit your changes with a descriptive, Conventional Commit-style message.
+-- 🚀 Push your branch and open a pull request. -->
 
 ## License
 
@@ -117,8 +230,8 @@ This project is licensed under the MIT License. See the `package.json` file for 
 Developed by a passionate software engineer.
 
 - **Olatilewa Olatoye**
-  - LinkedIn: [`[Olatilewa Olatoye]`](https://www.linkedin.com/in/olatilewaolatoye)
-  - X (formerly Twitter): [`[@olathedev_]`](https://x.com/olathedev_)
+- LinkedIn: [`[Olatilewa Olatoye]`](https://www.linkedin.com/in/olatilewaolatoye)
+- X (formerly Twitter): [`[@olathedev_]`](https://x.com/olathedev_)
 
 ## Badges
 

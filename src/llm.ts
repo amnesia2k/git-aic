@@ -258,7 +258,7 @@ export const generateDiffExplanation = async (
 
   return requestText(
     prompt,
-    `Updates ${filePath} with the staged changes shown below.`,
+    `Updates ${filePath} with the selected changes shown below.`,
     {
       operation: "diff-explanations",
       target: filePath,
@@ -317,7 +317,7 @@ export const generateDiffExplanations = async (
     if (!explanations.has(filePath)) {
       explanations.set(
         filePath,
-        `Updates ${filePath} with the staged changes shown below.`,
+        `Updates ${filePath} with the selected changes shown below.`,
       );
     }
   });
