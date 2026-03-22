@@ -15,7 +15,13 @@ export function useGitHubStats() {
     queryFn: async (): Promise<GitHubStats> => {
       const res = await fetch('https://api.github.com/repos/amnesia2k/git-aic')
       if (!res.ok) throw new Error('Failed to fetch GitHub stats')
-      return res.json()
+      const data = await res.json()
+      localStorage.setItem('github-stats', JSON.stringify(data))
+      return data
+    },
+    initialData: () => {
+      const saved = localStorage.getItem('github-stats')
+      return saved ? JSON.parse(saved) : undefined
     },
     staleTime: 1000 * 60 * 60, // 1 hour
   })

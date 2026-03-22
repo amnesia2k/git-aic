@@ -72,7 +72,7 @@ export function WorkflowCommit() {
                   <div className="size-2 rounded-full bg-yellow-400/50" />
                   <div className="size-2 rounded-full bg-green-400/50" />
                 </div>
-                <span className="text-[10px] font-mono text-muted-foreground opacity-50 uppercase">
+                <span className="text-[10px] font-mono text-white/40 opacity-50 uppercase">
                   TERM {version}
                 </span>
               </div>
@@ -80,28 +80,28 @@ export function WorkflowCommit() {
               <div className="p-6 md:p-8 space-y-6 font-mono text-xs md:text-sm">
                 <div className="flex gap-3">
                   <span className="text-secondary">➜</span>
-                  <span className="text-foreground">git aic</span>
+                  <span className="text-white/90">git aic</span>
                 </div>
-                <div className="text-muted-foreground">
+                <div className="text-white/40">
                   ? Select files to commit:
                 </div>
                 <div className="space-y-1 pl-6">
                   <div className="text-primary flex items-center gap-2">
                     <span>●</span> <span>src/engine.ts</span>
                   </div>
-                  <div className="text-muted-foreground flex items-center gap-2">
+                  <div className="text-white/40 flex items-center gap-2">
                     <span>○</span> <span>package.json</span>
                   </div>
                 </div>
                 <div className="p-4 bg-white/3 rounded-xl border border-white/5">
-                  <div className="text-primary-foreground/50 mb-2">
+                  <div className="text-white/30 mb-2">
                     Gemini Analysis:
                   </div>
                   <div className="text-secondary font-bold">
                     feat(engine): optimize prompt structure for Gemini Pro
                   </div>
                 </div>
-                <div className="flex gap-3 items-center text-xs text-muted-foreground">
+                <div className="flex gap-3 items-center text-xs text-white/40">
                   <span className="text-secondary">➜</span>
                   <span>git aic --push</span>
                   <span className="px-2 py-0.5 bg-green-500/10 text-green-500 border border-green-500/20 rounded ml-auto">

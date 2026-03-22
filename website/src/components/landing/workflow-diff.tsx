@@ -11,29 +11,31 @@ export function WorkflowDiff() {
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="order-2 lg:order-1"
+            className="order-2 lg:order-1 relative"
           >
-            <div className="glass-panel p-0 overflow-hidden border-white/10 shadow-2xl">
+            <div className="absolute -inset-1 bg-linear-to-r from-secondary/30 to-primary/30 rounded-3xl blur-2xl opacity-50" />
+            <div className="obsidian-terminal p-0 overflow-hidden border border-white/10 shadow-2xl relative z-10 dark">
               <div className="bg-white/5 px-6 py-4 flex items-center justify-between border-b border-white/5">
                 <div className="flex gap-4 items-center">
                   <FileCode className="size-4 text-secondary" />
-                  <span className="text-xs font-mono text-muted-foreground">
+                  <span className="text-xs font-mono text-white/40">
                     feat-auth-flow.md
                   </span>
                 </div>
-                <div className="flex gap-2">
-                  <div className="size-3 rounded shadow-inner bg-white/5" />
-                  <div className="size-3 rounded shadow-inner bg-white/5" />
+                <div className="flex gap-1.5">
+                  <div className="size-2 rounded-full bg-red-400/50" />
+                  <div className="size-2 rounded-full bg-yellow-400/50" />
+                  <div className="size-2 rounded-full bg-green-400/50" />
                 </div>
               </div>
 
               <div className="p-6 md:p-8 space-y-6 font-mono text-xs md:text-sm">
-                <div className="p-4 bg-black/40 rounded-xl border border-white/5 space-y-4 font-mono mb-6">
+                <div className="p-4 bg-black/40 rounded-xl border border-white/5 space-y-4 font-mono mb-6 text-white/90">
                   <div className="flex gap-3 text-xs">
                     <span className="text-secondary">➜</span>
-                    <span className="text-foreground">git aic --diff</span>
+                    <span>git aic --diff</span>
                   </div>
-                  <div className="text-[10px] text-muted-foreground">
+                  <div className="text-[10px] text-white/40">
                     Generated: git-diffs/feat-auth-flow.md
                   </div>
                 </div>
@@ -45,7 +47,7 @@ export function WorkflowDiff() {
                   <div className="p-4 rounded-xl bg-white/2 border border-white/5 space-y-4">
                     <div className="flex items-start gap-3">
                       <Sparkles className="size-3 text-secondary mt-1 shrink-0" />
-                      <p className="text-foreground/80 leading-relaxed text-xs">
+                      <p className="text-white/80 leading-relaxed text-xs">
                         Implemented a robust JWT-based authentication system
                         with secure token storage.
                       </p>
@@ -53,7 +55,7 @@ export function WorkflowDiff() {
                   </div>
                 </div>
 
-                <div className="text-[10px] text-muted-foreground pt-4 border-t border-white/5">
+                <div className="text-[10px] text-white/40 pt-4 border-t border-white/5">
                   Metadata: branch[master] hash[a7f3d...] time[2026-03-22 12:45]
                 </div>
               </div>

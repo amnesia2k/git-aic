@@ -18,12 +18,24 @@ export function Footer() {
           <div className="flex flex-col items-center md:items-start gap-4">
             <Link
               to="/"
-              className="text-xl font-display font-bold tracking-tighter"
+              className="flex items-center gap-2.5 group cursor-pointer"
             >
-              GIT AIC
+              <Github className="size-6 text-foreground group-hover:text-primary transition-colors fill-foreground group-hover:fill-primary scale-90" />
+              <span className="text-xl font-display font-bold tracking-tighter text-foreground group-hover:text-primary transition-colors">
+                AIC
+              </span>
             </Link>
             <p className="text-xs text-muted-foreground opacity-60">
-              © {currentYear} Git AIC. Synthesized by Amnesia2k.
+              © {currentYear} AIC. Made with ❤️ by{' '}
+              <a
+                href="https://github.com/amnesia2k"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                amnesia2k
+              </a>
+              .
             </p>
           </div>
 

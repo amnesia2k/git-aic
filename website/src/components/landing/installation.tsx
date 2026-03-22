@@ -25,7 +25,7 @@ export function Installation() {
             viewport={{ once: true }}
             className="headline-md font-display"
           >
-            Get Started <span className="text-primary italic">in Seconds</span>
+            Get Started <span className="text-primary italic">in seconds</span>
           </motion.h2>
         </div>
 
@@ -54,49 +54,49 @@ export function Installation() {
             <div className="space-y-6">
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
-                  <span className="size-6 rounded-full bg-white/5 flex items-center justify-center text-[10px] font-mono border border-white/5">
+                  <span className="size-6 rounded-full bg-primary/5 dark:bg-white/5 flex items-center justify-center text-[10px] font-mono border border-primary/10 dark:border-white/5 text-primary">
                     1
                   </span>
                   <p className="text-xs md:text-sm font-medium">Install:</p>
                 </div>
-                <div className="p-4 bg-black/40 rounded-xl font-mono text-xs md:text-sm border border-white/5 text-primary overflow-x-auto no-scrollbar break-all">
+                <div className="p-4 bg-muted/30 dark:bg-black/50 rounded-xl font-mono text-xs md:text-sm border border-border/40 text-primary font-semibold overflow-x-auto no-scrollbar break-all">
                   npm install -g @amnesia2k/git-aic
                 </div>
               </div>
 
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
-                  <span className="size-6 rounded-full bg-white/5 flex items-center justify-center text-[10px] font-mono border border-white/5">
+                  <span className="size-6 rounded-full bg-primary/5 dark:bg-white/5 flex items-center justify-center text-[10px] font-mono border border-primary/10 dark:border-white/5">
                     2
                   </span>
                   <p className="text-xs md:text-sm font-medium">Config Key:</p>
                 </div>
-                <div className="p-4 bg-black/40 rounded-xl font-mono text-xs md:text-sm border border-white/5 text-muted-foreground overflow-x-auto no-scrollbar break-all">
+                <div className="p-4 bg-muted/30 dark:bg-black/50 rounded-xl font-mono text-xs md:text-sm border border-border/40 text-foreground/70 overflow-x-auto no-scrollbar break-all">
                   git-aic set-key your_gemini_api_key
                 </div>
               </div>
 
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
-                  <span className="size-6 rounded-full bg-white/5 flex items-center justify-center text-[10px] font-mono border border-white/5">
+                  <span className="size-6 rounded-full bg-primary/5 dark:bg-white/5 flex items-center justify-center text-[10px] font-mono border border-primary/10 dark:border-white/5">
                     3
                   </span>
                   <p className="text-xs md:text-sm font-medium">Set Alias:</p>
                 </div>
-                <div className="p-4 bg-black/40 rounded-xl font-mono text-xs md:text-sm border border-white/5 text-muted-foreground overflow-x-auto no-scrollbar break-all">
+                <div className="p-4 bg-muted/30 dark:bg-black/50 rounded-xl font-mono text-xs md:text-sm border border-border/40 text-foreground/70 overflow-x-auto no-scrollbar break-all">
                   git-aic alias
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-4 mt-8 pt-6 border-t border-border/50">
                 <div className="flex items-center gap-4">
-                  <span className="size-6 rounded-full bg-white/5 flex items-center justify-center text-[10px] font-mono border border-white/5 font-bold">
+                  <span className="size-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-mono font-bold shadow-lg shadow-primary/20">
                     4
                   </span>
-                  <p className="text-xs md:text-sm font-medium">Run Now:</p>
+                  <p className="text-xs md:text-sm font-bold uppercase tracking-wider text-primary">Run Now:</p>
                 </div>
-                <div className="p-4 bg-primary/10 rounded-xl font-mono text-xs md:text-sm border border-primary/20 text-primary overflow-x-auto no-scrollbar break-all">
-                  git aic
+                <div className="p-5 bg-primary/5 dark:bg-primary/10 rounded-xl font-mono text-xs md:text-sm border-2 border-primary/30 text-primary font-bold shadow-inner overflow-x-auto no-scrollbar break-all flex items-center gap-3">
+                  <span className="text-primary/50">$</span> git aic
                 </div>
               </div>
             </div>
@@ -126,25 +126,24 @@ export function Installation() {
             <div className="space-y-6">
               <div className="space-y-3">
                 <div className="flex items-center gap-4">
-                  <span className="size-6 rounded-full bg-white/5 flex items-center justify-center text-[10px] font-mono border border-white/5">
+                  <span className="size-6 rounded-full bg-secondary/5 dark:bg-white/5 flex items-center justify-center text-[10px] font-mono border border-secondary/10 dark:border-white/5 text-secondary">
                     1
                   </span>
                   <p className="text-xs md:text-sm font-medium">Clone & Install:</p>
                 </div>
-                <div className="p-4 bg-black/40 rounded-xl font-mono text-xs md:text-sm border border-white/5 text-secondary overflow-x-auto no-scrollbar break-all">
-                  git clone https://github.com/amnesia2k/git-aic.git && bun
-                  install
+                <div className="p-4 bg-muted/30 dark:bg-black/50 rounded-xl font-mono text-xs md:text-sm border border-border/40 text-secondary font-semibold overflow-x-auto no-scrollbar break-all">
+                  git clone https://github.com/amnesia2k/git-aic.git && bun install
                 </div>
               </div>
 
               <div className="space-y-3">
                 <div className="flex items-center gap-4">
-                  <span className="size-6 rounded-full bg-white/5 flex items-center justify-center text-[10px] font-mono border border-white/5">
+                  <span className="size-6 rounded-full bg-secondary/5 dark:bg-white/5 flex items-center justify-center text-[10px] font-mono border border-secondary/10 dark:border-white/5">
                     2
                   </span>
                   <p className="text-xs md:text-sm font-medium">Environment:</p>
                 </div>
-                <div className="p-4 bg-black/40 rounded-xl font-mono text-xs md:text-sm border border-white/5 text-muted-foreground overflow-x-auto no-scrollbar break-all">
+                <div className="p-4 bg-muted/30 dark:bg-black/50 rounded-xl font-mono text-xs md:text-sm border border-border/40 text-foreground/70 overflow-x-auto no-scrollbar break-all">
                   {os === 'windows'
                     ? 'setx GEMINI_COMMIT_MESSAGE_API_KEY "your_key"'
                     : 'export GEMINI_COMMIT_MESSAGE_API_KEY=your_key'}
@@ -153,27 +152,27 @@ export function Installation() {
 
               <div className="space-y-3">
                 <div className="flex items-center gap-4">
-                  <span className="size-6 rounded-full bg-white/5 flex items-center justify-center text-[10px] font-mono border border-white/5">
+                  <span className="size-6 rounded-full bg-secondary/5 dark:bg-white/5 flex items-center justify-center text-[10px] font-mono border border-secondary/10 dark:border-white/5">
                     3
                   </span>
                   <p className="text-xs md:text-sm font-medium">Manual Alias:</p>
                 </div>
-                <div className="p-4 bg-black/40 rounded-xl font-mono text-xs md:text-sm border border-white/5 text-muted-foreground overflow-x-auto no-scrollbar break-all">
+                <div className="p-4 bg-muted/30 dark:bg-black/50 rounded-xl font-mono text-xs md:text-sm border border-border/40 text-foreground/70 overflow-x-auto no-scrollbar break-all">
                   {os === 'windows'
                     ? "git config --global alias.aic '!npx tsx \"C:/path/to/cli.ts\"'"
                     : "git config --global alias.aic '!npx tsx \"/path/to/cli.ts\"'"}
                 </div>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-3 mt-8 pt-6 border-t border-border/50">
                 <div className="flex items-center gap-4">
-                  <span className="size-6 rounded-full bg-white/5 flex items-center justify-center text-[10px] font-mono border border-white/5 font-bold">
+                  <span className="size-7 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center text-xs font-mono font-bold shadow-lg shadow-secondary/20">
                     4
                   </span>
-                  <p className="text-xs md:text-sm font-medium">Run Now:</p>
+                  <p className="text-xs md:text-sm font-bold uppercase tracking-wider text-secondary">Run Now:</p>
                 </div>
-                <div className="p-4 bg-secondary/10 rounded-xl font-mono text-xs md:text-sm border border-secondary/20 text-secondary overflow-x-auto no-scrollbar break-all">
-                  git aic
+                <div className="p-5 bg-secondary/5 dark:bg-secondary/10 rounded-xl font-mono text-xs md:text-sm border-2 border-secondary/30 text-secondary font-bold shadow-inner overflow-x-auto no-scrollbar break-all flex items-center gap-3">
+                  <span className="text-secondary/50">$</span> git aic
                 </div>
               </div>
             </div>

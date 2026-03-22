@@ -31,7 +31,8 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'Git AIC',
+        name: 'title',
+        content: 'AIC — AI Powered Conventional Commits',
       },
     ],
     links: [

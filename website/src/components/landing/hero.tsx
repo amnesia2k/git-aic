@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { useGitHubLatestRelease } from '@/hooks/use-github'
+import { useGitHubLatestRelease, useGitHubStats } from '@/hooks/use-github'
 import { motion } from 'motion/react'
-import { Github, Terminal as TerminalIcon, Copy, Check } from 'lucide-react'
+import { Github, Terminal as TerminalIcon, Copy, Check, Star } from 'lucide-react'
 import { Button } from '../ui/button'
 
 export function Hero() {
-  // const { data: stats } = useGitHubStats()
+  const { data: stats } = useGitHubStats()
   const { data: release } = useGitHubLatestRelease()
   const [copied, setCopied] = useState(false)
   const installCommand = 'npm install -g @amnesia2k/git-aic'
@@ -77,9 +77,16 @@ export function Hero() {
                 href="https://github.com/amnesia2k/git-aic"
                 target="_blank"
                 rel="noopener noreferrer"
+                className="flex items-center gap-2"
               >
                 <Github className="size-4" />
-                View on GitHub
+                <span>View on GitHub</span>
+                {stats?.stargazers_count !== undefined && (
+                  <span className="ml-1 px-1.5 py-0.5 bg-tertiary/10 text-tertiary text-[10px] font-bold rounded border border-tertiary/20 flex items-center gap-1">
+                    <Star className="size-2 fill-tertiary" />
+                    {stats.stargazers_count.toLocaleString()}
+                  </span>
+                )}
               </a>
             </Button>
           </div>
@@ -97,7 +104,7 @@ export function Hero() {
               <div className="size-2.5 rounded-full bg-red-500/50" />
               <div className="size-2.5 rounded-full bg-yellow-500/50" />
               <div className="size-2.5 rounded-full bg-green-500/50" />
-              <span className="ml-4 text-[10px] font-mono text-muted-foreground uppercase tracking-widest">
+              <span className="ml-4 text-[10px] font-mono text-white/40 uppercase tracking-widest">
                 git-aic — commit flow
               </span>
             </div>
@@ -105,29 +112,29 @@ export function Hero() {
             <div className="space-y-4 text-sm md:text-base font-mono">
               <div className="flex gap-3">
                 <span className="text-secondary">➜</span>
-                <span className="text-foreground">git aic</span>
+                <span className="text-white/90">git aic</span>
               </div>
-              <div className="text-muted-foreground">
+              <div className="text-white/40">
                 ? Select files to include in commit:
               </div>
               <div className="space-y-1 pl-6">
                 <div className="text-primary flex items-center gap-2">
                   <span>●</span> <span>src/index.ts</span>
                 </div>
-                <div className="text-muted-foreground flex items-center gap-2">
+                <div className="text-white/40 flex items-center gap-2">
                   <span>○</span> <span>package.json</span>
                 </div>
-                <div className="text-muted-foreground flex items-center gap-2">
+                <div className="text-white/40 flex items-center gap-2">
                   <span>○</span> <span>README.md</span>
                 </div>
               </div>
-              <div className="pt-2 text-muted-foreground italic">
+              <div className="pt-2 text-white/40 italic">
                 Analyzing diff with Gemini Pro...
               </div>
               <div className="text-secondary font-bold">
                 feat: integrate @clack/prompts for interactive file selection
               </div>
-              <div className="text-muted-foreground pl-4">
+              <div className="text-white/40 pl-4">
                 - Updated src/index.ts <br />- Added file selector logic
               </div>
             </div>

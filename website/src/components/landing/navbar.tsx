@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
-import { Menu, X, Star } from 'lucide-react'
+import { Menu, X, Star, Github } from 'lucide-react'
 import { ModeToggle } from '@/components/mode-toggle'
 import { Button } from '@/components/ui/button'
 import { motion, AnimatePresence } from 'motion/react'
@@ -19,6 +19,17 @@ export function Navbar() {
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [mobileMenuOpen])
 
   const navLinks = [
     { name: 'Features', href: '#features' },
@@ -40,10 +51,11 @@ export function Navbar() {
             {/* Logo */}
             <Link
               to="/"
-              className="flex items-center gap-2 group cursor-pointer"
+              className="flex items-center gap-2.5 group cursor-pointer"
             >
+              <Github className="size-6 text-foreground group-hover:text-primary transition-colors fill-foreground group-hover:fill-primary scale-90" />
               <span className="text-xl font-display font-bold tracking-tighter text-foreground group-hover:text-primary transition-colors">
-                GIT AIC
+                AIC
               </span>
             </Link>
 
@@ -74,7 +86,7 @@ export function Navbar() {
                   <span>
                     {stats?.stargazers_count !== undefined
                       ? `${stats.stargazers_count.toLocaleString()} Stars`
-                      : 'Star on GitHub'}
+                      : '--- Stars'}
                   </span>
                 </a>
 
@@ -101,52 +113,71 @@ export function Navbar() {
       {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, x: '100%' }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed inset-0 z-60 bg-background md:hidden p-6 flex flex-col"
-          >
-            <div className="flex items-center justify-between mb-12">
-              <span className="text-xl font-display font-bold tracking-tighter">
-                GIT AIC
-              </span>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <X className="size-6" />
-              </Button>
-            </div>
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileMenuOpen(false)}
+              className="fixed inset-0 z-50 bg-black/20 backdrop-blur-md md:hidden"
+            />
 
-            <ul className="flex flex-col gap-6 text-2xl font-display font-medium">
-              {navLinks.map((link) => (
-                <li key={link.name}>
-                  <a
-                    href={link.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="hover:text-primary transition-colors"
-                  >
-                    {link.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            {/* Sidebar */}
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed top-0 right-0 bottom-0 w-[75%] max-w-[400px] z-60 bg-background/95 backdrop-blur-xl md:hidden p-6 flex flex-col border-l border-white/5 shadow-2xl"
+            >
+              <div className="flex items-center justify-between mb-12">
+                <div className="flex items-center gap-2.5">
+                  <Github className="size-6 text-foreground fill-foreground" />
+                  <span className="text-xl font-display font-bold tracking-tighter">
+                    AIC
+                  </span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <X className="size-6" />
+                </Button>
+              </div>
 
-            <div className="mt-auto pt-8 border-t border-border">
-              <a
-                href="https://github.com/amnesia2k/git-aic"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 glass-pill py-4 w-full text-sm font-mono"
-              >
-                <Star className="size-4 text-tertiary fill-tertiary" />
-                <span>Star on GitHub</span>
-              </a>
-            </div>
-          </motion.div>
+              <ul className="flex flex-col gap-6 text-2xl font-display font-medium">
+                {navLinks.map((link) => (
+                  <li key={link.name}>
+                    <a
+                      href={link.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="hover:text-primary transition-colors"
+                    >
+                      {link.name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-auto pt-8 border-t border-border">
+                <a
+                  href="https://github.com/amnesia2k/git-aic"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 glass-pill py-4 w-full text-sm font-mono"
+                >
+                  <Star className="size-4 text-tertiary fill-tertiary" />
+                  <span>
+                    {stats?.stargazers_count !== undefined
+                      ? `${stats.stargazers_count.toLocaleString()} Stars`
+                      : '--- Stars'}
+                  </span>
+                </a>
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </>
