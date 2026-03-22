@@ -1,6 +1,6 @@
 # Git AIC Website Design Breakdown
 
-This document provides a structured breakdown of the **Git AIC** CLI tool to guide the design and development of its official website.
+This document provides a structured breakdown of the **Git AIC** CLI tool to guide the design and development of its official 1-screen website.
 
 ---
 
@@ -9,7 +9,7 @@ This document provides a structured breakdown of the **Git AIC** CLI tool to gui
 - **Primary Headline**: AI-Powered Conventional Commits & Diff Explanations.
 - **Supporting Headline**: A high-performance TypeScript CLI that turns your staged changes into perfectly formatted conventional commits and AI-explained markdown reports.
 - **Primary Call to Action (CTA)**: `npm install -g @amnesia2k/git-aic` (Global installation).
-- **Secondary Call to Action**: [View on GitHub](https://github.com/amnesia2k/git-aic) (For local development).
+- **Secondary Call to Action**: [View on GitHub](https://github.com/amnesia2k/git-aic) (**GitHub Stars** included in header/hero).
 - **Key Visual (Hero Area)**: A sleek, dark-themed terminal mock-up showing an interactive file selection (`@clack/prompts`) followed by a generated commit message: `feat(api/main): implement user authentication flow`.
 
 ---
@@ -19,7 +19,7 @@ This document provides a structured breakdown of the **Git AIC** CLI tool to gui
 - **Eliminate Writer's Block**: Never struggle to describe your changes again.
 - **Standardize Your Commits**: Automatically enforced Conventional Commits format ensures a clean, readable project history.
 - **Streamlined Code Reviews**: Generate "Diff Reports" that explain _what_ changed and _why_ it matters, before showing the raw code.
-- **Low Friction**: Designed for speed with `bun` and a minimal terminal UX.
+- **Low Friction**: Designed for speed with `bun`/`node` and a minimal terminal UX.
 
 ---
 
@@ -63,12 +63,12 @@ This document provides a structured breakdown of the **Git AIC** CLI tool to gui
 
 ---
 
-## 6. Installation & Quick Start
+## 6. Installation & Quick Start (1-Screen Flow)
 
 ### Path A: Global NPM (Fastest)
 
 1.  **Install**: `npm install -g @amnesia2k/git-aic`
-2.  **Config**: `git aic set-key your_key_here`
+2.  **Config**: `git aic set-key your_gemini_api_key_here`
 3.  **Alias**: `git aic alias`
 4.  **Run**: `git aic`
 
@@ -76,20 +76,23 @@ This document provides a structured breakdown of the **Git AIC** CLI tool to gui
 
 1.  **Clone**: `git clone https://github.com/amnesia2k/git-aic.git`
 2.  **Install**: `cd git-aic && bun install`
-3.  **Config**: Set `GEMINI_COMMIT_MESSAGE_API_KEY` environment variable.
+3.  **Config**: `export GEMINI_COMMIT_MESSAGE_API_KEY=your_key_here`
 4.  **Alias**:
-    - **Windows**: `git config --global alias.aic '!npx tsx "C:/path/to/git-aic/bin/cli.ts"'`
-    - **macOS/Linux**: `git config --global alias.aic '!npx tsx "/path/to/git-aic/bin/cli.ts"'`
+    - Windows: `git config --global alias.aic '!npx tsx "C:/path/to/git-aic/bin/cli.ts"'`
+    - macOS/Linux: `git config --global alias.aic '!npx tsx "/path/to/git-aic/bin/cli.ts"'`
 
 ---
 
-## 7. Design Aesthetics (Website Style Guide)
+## 7. Design Aesthetics (Style Guide)
 
-- **Aesthetic Direction**: Liquid-Glass + Black Terminal.
+- **Architecture**: **Single-Page (1-Screen)** layout with smooth transitions between sections.
+- **Aesthetic Direction**: **Liquid-Glass + Black Terminal**.
 - **Theme**: Ultra-Dark Mode with high-contrast glassmorphism.
-- **Typography**: Precision Monospace (e.g., JetBrains Mono) for code blocks; Modern Sans-Serif (e.g., Inter) for UI text.
+- **Typography**:
+  - **General**: Simple, modern Sans-Serif (e.g., `Inter`).
+  - **Code/Terminal**: `JetBrains Mono`.
 - **Visual Elements**:
-  - Blurred, translucent "glass" overlays for UI components to create depth.
-  - Deep black obsidian backgrounds for terminal sections to maintain a code-centric focus.
-  - Fluid, "liquid" animated gradients for background depth to add dynamic energy.
-- **Animations**: Silky smooth transitions, subtle glass refraction effects, and authentic terminal typing animations for a premium developer experience.
+  - Blurred, translucent "glass" overlays for UI components.
+  - Deep black obsidian backgrounds for terminal sections.
+  - Fluid, "liquid" animated gradients in the background for dynamic energy.
+- **GitHub Stars**: Prominently displayed in the header and hero area.

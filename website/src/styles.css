@@ -1,0 +1,292 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@200;300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Obsidian Specific Tokens */
+  --color-surface-container: var(--surface-container);
+  --color-surface-variant: var(--surface-variant);
+  --color-outline-variant: var(--outline-variant);
+  --color-tertiary: var(--tertiary);
+}
+
+:root {
+  --radius: 1.5rem;
+  --font-body: 'Manrope', sans-serif;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Light Mode (Shadcn Defaults adapted for Obsidian feel) */
+  --background: oklch(0.98 0.01 250);
+  --foreground: oklch(0.15 0.02 250);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.15 0.02 250);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.15 0.02 250);
+  --primary: oklch(0.7 0.15 300);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.8 0.12 220);
+  --secondary-foreground: oklch(0.15 0.02 250);
+  --muted: oklch(0.92 0.01 250);
+  --muted-foreground: oklch(0.45 0.02 250);
+  --accent: oklch(0.92 0.01 250);
+  --accent-foreground: oklch(0.7 0.15 300);
+  --destructive: oklch(0.6 0.22 25);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.15 0.02 250 / 0.1);
+  --input: oklch(0.15 0.02 250 / 0.1);
+  --ring: oklch(0.7 0.15 300);
+
+  --surface-container: oklch(0.95 0.01 250);
+  --surface-variant: oklch(0.9 0.01 250);
+  --outline-variant: oklch(0.15 0.02 250 / 0.2);
+  --tertiary: oklch(0.75 0.18 340);
+}
+
+.dark {
+  --background: oklch(0.14 0.01 250);
+  --foreground: oklch(0.98 0 0);
+  --card: oklch(0.18 0.01 250);
+  --card-foreground: oklch(0.98 0 0);
+  --popover: oklch(0.18 0.01 250);
+  --popover-foreground: oklch(0.98 0 0);
+  --primary: oklch(0.75 0.18 300); /* #cc97ff */
+  --primary-foreground: oklch(0.15 0.02 250);
+  --secondary: oklch(0.85 0.15 220); /* #53ddfc */
+  --secondary-foreground: oklch(0.15 0.02 250);
+  --muted: oklch(0.22 0.01 250);
+  --muted-foreground: oklch(0.7 0.01 250);
+  --accent: oklch(0.22 0.01 250);
+  --accent-foreground: oklch(0.98 0 0);
+  --destructive: oklch(0.6 0.22 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.75 0.18 300);
+
+  --surface-container: oklch(0.18 0.01 250);
+  --surface-variant: oklch(0.22 0.01 250);
+  --outline-variant: oklch(1 0 0 / 20%);
+  --tertiary: oklch(0.75 0.18 340);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer components {
+  /* Obsidian Terminal */
+  .obsidian-terminal {
+    background-color: oklch(0.1 0 0);
+    font-family: var(--font-mono);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .obsidian-terminal.active {
+    box-shadow: 0 0 30px oklch(0.75 0.18 300 / 0.15);
+  }
+
+  .obsidian-terminal::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--color-secondary);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .obsidian-terminal.scanning::after {
+    opacity: 1;
+    animation: scan 3s linear infinite;
+  }
+
+  @keyframes scan {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(100%);
+    }
+  }
+
+  /* Glass Action Buttons */
+  .btn-glass-primary {
+    background: linear-gradient(
+      135deg,
+      var(--color-primary),
+      oklch(0.6 0.25 295)
+    );
+    color: var(--color-primary-foreground);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .btn-glass-primary:hover {
+    backdrop-filter: blur(25px);
+    box-shadow: inset 0 0 10px oklch(0.75 0.18 300 / 0.3);
+  }
+
+  .btn-glass-secondary {
+    background: transparent;
+    border: 1px solid var(--color-outline-variant);
+    color: var(--color-foreground);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .btn-glass-secondary:hover {
+    backdrop-filter: blur(20px);
+    border-color: var(--color-primary);
+    box-shadow: inset 0 0 10px oklch(0.75 0.18 300 / 0.3);
+  }
+
+  /* Glass Panels */
+  .glass-panel {
+    background: color-mix(
+      in srgb,
+      var(--color-surface-variant) 40%,
+      transparent
+    );
+    backdrop-filter: blur(20px);
+    border: 1px solid
+      color-mix(in srgb, var(--color-outline-variant) 20%, transparent);
+    border-radius: var(--radius-md);
+  }
+
+  .glass-pill {
+    background: color-mix(
+      in srgb,
+      var(--color-surface-container) 50%,
+      transparent
+    );
+    backdrop-filter: blur(20px);
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 1rem;
+  }
+
+  /* Fluid List */
+  .fluid-list-item {
+    position: relative;
+    padding: 1rem;
+    border-radius: var(--radius-lg);
+    transition: background-color 0.3s ease;
+  }
+
+  .fluid-list-item:hover {
+    background-color: var(--color-surface-container);
+    backdrop-filter: blur(10px);
+  }
+}
+
+@layer utilities {
+  .display-lg {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 8vw, 4rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  .headline-md {
+    font-family: var(--font-display);
+    font-size: clamp(1.35rem, 5vw, 2.5rem);
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  .body-lg {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    font-weight: 400;
+  }
+
+  .code-data {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    font-weight: 400;
+  }
+
+  .liquid-bg {
+    background: linear-gradient(
+      135deg,
+      oklch(0.6 0.25 295),
+      oklch(0.4 0.15 220)
+    );
+    position: relative;
+    overflow: hidden;
+  }
+
+  .grain-texture {
+    position: relative;
+  }
+
+  .grain-texture::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    background-blend-mode: overlay;
+    opacity: 0.05;
+    pointer-events: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
