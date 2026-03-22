@@ -77,7 +77,9 @@ This document provides a structured breakdown of the **Git AIC** CLI tool to gui
 1.  **Clone**: `git clone https://github.com/amnesia2k/git-aic.git`
 2.  **Install**: `cd git-aic && bun install`
 3.  **Config**: Set `GEMINI_COMMIT_MESSAGE_API_KEY` environment variable.
-4.  **Alias**: `git config --global alias.aic '!npx tsx /path/to/git-aic/bin/cli.ts'`
+4.  **Alias**:
+    - **Windows**: `git config --global alias.aic '!npx tsx "C:/path/to/git-aic/bin/cli.ts"'`
+    - **macOS/Linux**: `git config --global alias.aic '!npx tsx "/path/to/git-aic/bin/cli.ts"'`
 
 ---
 
