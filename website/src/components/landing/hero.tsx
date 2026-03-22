@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { useGitHubStats, useGitHubLatestRelease } from '@/hooks/use-github'
+import { useGitHubLatestRelease } from '@/hooks/use-github'
 import { motion } from 'motion/react'
 import { Github, Terminal as TerminalIcon, Copy, Check } from 'lucide-react'
 import { Button } from '../ui/button'
 
 export function Hero() {
-  const { data: stats } = useGitHubStats()
+  // const { data: stats } = useGitHubStats()
   const { data: release } = useGitHubLatestRelease()
   const [copied, setCopied] = useState(false)
   const installCommand = 'npm install -g @amnesia2k/git-aic'
