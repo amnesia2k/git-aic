@@ -21,15 +21,29 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "dev": "tsx bin/cli.ts",
-    "commit": "tsx bin/cli.ts"
+    "commit": "tsx bin/cli.ts",
+    "release": "npm run build && npm version patch && git push origin master --follow-tags && npm publish"
   },
   "keywords": [
     "git",
     "aic",
     "ai",
-    "git-aic"
+    "git-aic",
+    "gemini",
+    "google-gemini",
+    "llm",
+    "conventional-commits",
+    "commit-generator",
+    "diff-explanations",
+    "productivity",
+    "cli",
+    "typescript"
   ],
-  "author": "Olatilewa Olatoye",
+  "author": {
+    "name": "Olatilewa Olatoye",
+    "email": "tilewaolatoye17@gmail.com",
+    "url": "https://github.com/amnesia2k"
+  },
   "license": "MIT",
   "devDependencies": {
     "@types/bun": "latest",
