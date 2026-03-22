@@ -1,5 +1,5 @@
 import { motion } from 'motion/react'
-import { Globe, Code } from 'lucide-react'
+import { Globe, Code, Wifi } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 export function Installation() {
@@ -99,6 +99,10 @@ export function Installation() {
                   <span className="text-primary/50">$</span> git aic
                 </div>
               </div>
+              <div className="mt-8 flex items-center gap-2 text-[10px] uppercase tracking-widest text-muted-foreground/40 font-mono">
+                <Wifi className="size-3" />
+                Requires active internet connection
+              </div>
             </div>
           </motion.div>
 
@@ -174,6 +178,10 @@ export function Installation() {
                 <div className="p-5 bg-secondary/5 dark:bg-secondary/10 rounded-xl font-mono text-xs md:text-sm border-2 border-secondary/30 text-secondary font-bold shadow-inner overflow-x-auto no-scrollbar break-all flex items-center gap-3">
                   <span className="text-secondary/50">$</span> git aic
                 </div>
+              </div>
+              <div className="mt-8 flex items-center gap-2 text-[10px] uppercase tracking-widest text-muted-foreground/40 font-mono">
+                <Wifi className="size-3" />
+                Requires active internet connection
               </div>
             </div>
           </motion.div>

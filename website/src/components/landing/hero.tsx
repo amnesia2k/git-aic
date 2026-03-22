@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { useGitHubLatestRelease, useGitHubStats } from '@/hooks/use-github'
 import { motion } from 'motion/react'
-import { Github, Terminal as TerminalIcon, Copy, Check, Star } from 'lucide-react'
+import { Github, Terminal as TerminalIcon, Copy, Check, Star, Wifi } from 'lucide-react'
 import { Button } from '../ui/button'
 
 export function Hero() {
@@ -33,11 +33,17 @@ export function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <span className="inline-block px-3 py-1 mb-4 md:mb-6 text-[10px] md:text-xs font-mono font-medium tracking-widest text-primary bg-primary/10 border border-primary/20 rounded-full">
-            {release?.tag_name
-              ? `${release.tag_name} IS OUT NOW`
-              : 'v 1.2.3 IS OUT NOW'}
-          </span>
+          <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 mb-4 md:mb-6">
+            <span className="inline-block px-3 py-1 text-[10px] md:text-xs font-mono font-medium tracking-widest text-primary bg-primary/10 border border-primary/20 rounded-full">
+              {release?.tag_name
+                ? `${release.tag_name} IS OUT NOW`
+                : 'v 1.2.3 IS OUT NOW'}
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] md:text-xs font-mono font-medium tracking-widest text-secondary bg-secondary/10 border border-secondary/20 rounded-full">
+              <Wifi className="size-3" />
+              NETWORK REQUIRED
+            </span>
+          </div>
           <h1 className="display-lg mb-4 md:mb-6 max-w-4xl mx-auto">
             AI-Powered <br className="hidden sm:block" />
             <span className="text-transparent bg-clip-text bg-linear-to-r from-primary via-primary-dim to-secondary whitespace-normal sm:whitespace-nowrap">
