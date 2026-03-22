@@ -1,4 +1,4 @@
-#!/usr/bin/env ts-node
+#!/usr/bin/env node
 
 import { Command } from "commander";
 import { arrows_3 } from "cli-loaders";
@@ -22,6 +22,7 @@ import {
 import { spawnSync } from "child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
+import { config, setStoredApiKey } from "../src/config.js";
 
 const git: SimpleGit = simpleGit();
 const program = new Command();
@@ -277,7 +278,9 @@ const createDiffMarkdown = async (
 
   for (let index = 0; index < fileDiffs.length; index += 1) {
     const { filePath, diff } = fileDiffs[index];
-    updateStatus(`Formatting diff ${index + 1}/${fileDiffs.length}: ${filePath}`);
+    updateStatus(
+      `Formatting diff ${index + 1}/${fileDiffs.length}: ${filePath}`,
+    );
     const explanation =
       explanations.get(filePath) ||
       `Updates ${filePath} with the selected changes shown below.`;
@@ -318,11 +321,61 @@ const createDiffMarkdown = async (
 };
 
 program
-  .name("commit")
+  .name("git-aic")
   .description("AI-powered Git commit using Google Gemini")
   .version("1.0.0")
   .option("-p, --push", "push after committing")
   .option("-d, --diff", "write selected changes to a markdown diff report");
+
+program
+  .command("show")
+  .description("Show current configuration")
+  .action(() => {
+    const rawKey = config.get("apiKey") as string | undefined;
+    const displayKey = rawKey
+      ? `${rawKey.substring(0, 8)}${"*".repeat(Math.max(0, rawKey.length - 8))}`
+      : "not set";
+    console.log(chalk.cyan(`API Key: ${displayKey}`));
+    console.log(chalk.cyan(`Config path: ${config.path}`));
+  });
+
+program
+  .command("set-key <key>")
+  .description("Set your Gemini API key persistently")
+  .action((key) => {
+    setStoredApiKey(key);
+    console.log(chalk.green("API key saved successfully."));
+  });
+
+program
+  .command("alias")
+  .description("Set up 'git aic' alias")
+  .action(() => {
+    try {
+      spawnSync("git", ["config", "--global", "alias.aic", "!git-aic"], {
+        stdio: "inherit",
+        shell: true,
+      });
+      console.log(chalk.green("Alias 'git aic' set up successfully."));
+      console.log(
+        chalk.cyan("Now you can use 'git aic' instead of 'git-aic'!"),
+      );
+      console.log(
+        chalk.yellow(
+          "\nNote: Use 'git aic help' or 'git aic -h' for help. 'git aic --help' is reserved by Git for its internal documentation.",
+        ),
+      );
+    } catch (error) {
+      console.error(chalk.red("Failed to set up alias:"), error);
+    }
+  });
+
+program
+  .command("help")
+  .description("Display help information")
+  .action(() => {
+    program.help();
+  });
 
 program.action(async (options) => {
   const loader = createLoader();
@@ -355,11 +408,13 @@ program.action(async (options) => {
     if (changedFiles.length > 1) {
       loader.stop();
       selectedFiles =
-        (await selectFilesForOperation(actionLabel, status, !options.diff)) || [];
+        (await selectFilesForOperation(actionLabel, status, !options.diff)) ||
+        [];
     } else if (!status.staged.includes(changedFiles[0])) {
       loader.stop();
       selectedFiles =
-        (await selectFilesForOperation(actionLabel, status, !options.diff)) || [];
+        (await selectFilesForOperation(actionLabel, status, !options.diff)) ||
+        [];
     } else {
       selectedFiles = options.diff ? changedFiles : status.staged;
       loader.succeed(
@@ -369,7 +424,9 @@ program.action(async (options) => {
       );
     }
 
-    loader.start(options.diff ? "Checking selected changes" : "Checking staged changes");
+    loader.start(
+      options.diff ? "Checking selected changes" : "Checking staged changes",
+    );
     const finalDiff = options.diff
       ? await getSelectedFilesDiff(selectedFiles)
       : await getGitDiff();

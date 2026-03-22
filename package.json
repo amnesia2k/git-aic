@@ -1,11 +1,27 @@
 {
-  "name": "git-aic",
+  "name": "@amnesia2k/git-aic",
   "type": "module",
-  "version": "1.0.0",
+  "version": "2.1.0",
   "description": "Git AIC",
-  "main": "bin/cli.ts",
+  "main": "dist/bin/cli.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "private": false,
+  "bin": {
+    "git-aic": "./dist/bin/cli.js"
+  },
+  "files": [
+    "dist/",
+    "bin/",
+    "src/",
+    "README.md",
+    "package.json"
+  ],
   "scripts": {
-    "commit": "ts-node bin/cli.ts"
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsx bin/cli.ts",
+    "commit": "tsx bin/cli.ts"
   },
   "keywords": [
     "git",
@@ -15,10 +31,10 @@
   ],
   "author": "Olatilewa Olatoye",
   "license": "MIT",
-  "private": true,
   "devDependencies": {
     "@types/bun": "latest",
-    "@types/node": "^25.3.5",
+    "@types/conf": "^2.1.0",
+    "@types/node": "^25.5.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
@@ -29,6 +45,7 @@
     "chalk": "^5.6.2",
     "cli-loaders": "^3.0.0",
     "commander": "^14.0.3",
+    "conf": "^15.1.0",
     "simple-git": "^3.32.3"
   }
 }

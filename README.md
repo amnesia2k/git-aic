@@ -67,6 +67,25 @@ Each generated markdown report includes:
 
 ## Installation
 
+### 1. Global Installation (Standard)
+
+The easiest way to use Git AIC is to install it globally via `npm` or `bun`:
+
+```bash
+npm install -g @amnesia2k/git-aic
+# or
+bun install -g @amnesia2k/git-aic
+```
+
+Once installed, you can skip the manual setup and use the built-in configuration commands:
+
+- `git-aic set-key <your-key>`
+- `git-aic alias`
+
+### 2. Local Development (Clone)
+
+For developers or users who want to run the tool from the source code:
+
 1. Clone the repository:
 
 ```bash
@@ -80,72 +99,118 @@ cd git-aic
 bun install
 ```
 
-You can also use `npm`, `pnpm`, or `yarn` if that fits your environment.
+3. (Optional) Link the package locally:
 
-## Environment Variable
+```bash
+npm link
+```
 
-Git AIC requires a Gemini API key.
+## Configuration & API Key
 
-Variable:
+Git AIC requires a Google Gemini API key.
 
-- `GEMINI_COMMIT_MESSAGE_API_KEY`
+### A. Persistent Configuration (Recommended)
 
-Example:
+You can securely store your API key in your user profile:
+
+```bash
+git-aic set-key your_gemini_api_key_here
+```
+
+To see your current configuration:
+
+```bash
+git-aic show
+```
+
+### B. Environment Variables (Manual)
+
+Alternatively, you can set the `GEMINI_COMMIT_MESSAGE_API_KEY` variable.
+
+**Windows PowerShell:**
+
+```bash
+setx GEMINI_COMMIT_MESSAGE_API_KEY "your_gemini_api_key_here"
+```
+
+**MacOS & Linux:**
 
 ```bash
 export GEMINI_COMMIT_MESSAGE_API_KEY=your_gemini_api_key_here
-```
-
-Windows PowerShell:
-
-```powershell
-setx GEMINI_COMMIT_MESSAGE_API_KEY "your_gemini_api_key_here"
 ```
 
 Restart the terminal after setting the variable.
 
 ## Usage
 
-### Git alias
+### 1. The "git aic" Alias
 
-Windows:
+To use the tool as a native Git subcommand (`git aic`), you need to set up a Git alias.
+
+#### Option A: Automatic Setup (Global NPM)
+
+If you installed via NPM, run:
+
+```bash
+git-aic alias
+```
+
+#### Option B: Manual Setup (Local Clone)
+
+If you are running from a local clone, point the alias to your entry point:
+
+**Windows PowerShell:**
 
 ```bash
 git config --global alias.aic '!npx tsx "C:/Users/YourName/path/to/git-aic/bin/cli.ts"'
 ```
 
-macOS / Linux:
+**macOS / Linux:**
 
 ```bash
 git config --global alias.aic '!npx tsx "/Users/YourName/path/to/git-aic/bin/cli.ts"'
 ```
 
-### Commands
+### 2. Commands
 
-Generate and create a commit:
+**Generate and create a commit:**
 
 ```bash
 git aic
 ```
 
-Generate, commit, and push:
+**Generate, commit, and push:**
 
 ```bash
 git aic --push
 ```
 
-Generate a markdown diff report:
+**Generate a markdown diff report:**
 
 ```bash
 git aic --diff
 ```
 
-Also supported:
+**Show current configuration:**
 
 ```bash
-git aic -diff
-git aic -d
-git aic -p
+git aic show
+```
+
+**Display help:**
+
+```bash
+git aic help
+```
+
+> [!TIP]
+> Use `git aic help` or `git aic -h` to see the help menu. Git reserves `--help` for its own internal documentation search, which causes raw `--help` to fail on custom aliases.
+
+**Also supported:**
+
+```bash
+git aic -d : This is a shortcut for `git aic --diff`
+git aic -p : This is a shortcut for `git aic --push`
 ```
 
 ## Important Workflow Notes
@@ -203,7 +268,7 @@ If a filename already exists, numeric suffixes are used:
 | Technology                                                                                                          | Description                                                     |
 | ------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
 | ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)   | Primary language for robust and scalable code.                  |
-| ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)         | JavaScript runtime used to execute the CLI tool.                |
+| ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)          | JavaScript runtime used to execute the CLI tool.                |
 | ![Bun](https://img.shields.io/badge/Bun-000?style=for-the-badge&logo=bun&logoColor=fff)                             | Fast all-in-one JavaScript runtime.                             |
 | ![Google Gemini](https://img.shields.io/badge/Google_Gemini-FF681A?style=for-the-badge&logo=google&logoColor=white) | Large Language Model for intelligent commit message generation. |
 | ![Axios](https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white)                  | Promise-based HTTP client for API requests.                     |
@@ -227,7 +292,7 @@ We welcome contributions to Git AIC! If you have suggestions for improvements or
 
 ## License
 
-This project is licensed under the MIT License. See the `package.json` file for more details.
+This project is licensed under the [MIT License](LICENSE). See the file for details.
 
 ## Author Info
 
@@ -241,7 +306,7 @@ Developed by a passionate software engineer.
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/en/)
-[![NPM Version](https://img.shields.io/npm/v/git-aic?style=for-the-badge)](https://www.npmjs.com/package/git-aic)
+[![NPM Version](https://img.shields.io/npm/v/@amnesia2k/git-aic?style=for-the-badge)](https://www.npmjs.com/package/@amnesia2k/git-aic)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 [![Readme was generated by Dokugen](https://img.shields.io/badge/Readme%20was%20generated%20by-Dokugen-brightgreen)](https://www.npmjs.com/package/dokugen)

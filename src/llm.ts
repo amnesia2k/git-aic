@@ -1,6 +1,7 @@
 import axios from "axios";
 import type { AxiosError } from "axios";
 import chalk from "chalk";
+import { getStoredApiKey } from "./config.js";
 import {
   buildBatchDiffExplanationsPrompt,
   buildDiffExplanationPrompt,
@@ -50,7 +51,8 @@ const API_URL =
   "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent";
 const MAX_RETRIES = 4;
 
-const getApiKey = () => process.env.GEMINI_COMMIT_MESSAGE_API_KEY || "";
+const getApiKey = () =>
+  process.env.GEMINI_COMMIT_MESSAGE_API_KEY || getStoredApiKey() || "";
 
 const ensureApiKey = () => {
   const API_KEY = getApiKey();
@@ -82,8 +84,7 @@ const ensureApiKey = () => {
   return API_KEY;
 };
 
-const sleep = (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const getOperationLabel = ({ operation, target }: RequestContext) => {
   if (operation === "diff-filename") {
@@ -229,7 +230,11 @@ const parseDiffFileName = (value: string) => {
   const typeLine = lines.find((line) => /^type\s*:/i.test(line));
   const topicLine = lines.find((line) => /^topic\s*:/i.test(line));
 
-  const rawType = typeLine?.replace(/^type\s*:/i, "").trim().toLowerCase() || "";
+  const rawType =
+    typeLine
+      ?.replace(/^type\s*:/i, "")
+      .trim()
+      .toLowerCase() || "";
   const rawTopic = topicLine?.replace(/^topic\s*:/i, "").trim() || "";
 
   const type = VALID_DIFF_FILE_TYPES.has(rawType) ? rawType : "chore";
@@ -266,12 +271,10 @@ export const generateDiffExplanation = async (
   );
 };
 
-const parseBatchDiffExplanations = (
-  value: string,
-  filePaths: string[],
-) => {
+const parseBatchDiffExplanations = (value: string, filePaths: string[]) => {
   const result = new Map<string, string>();
-  const blockRegex = /FILE:\s*(.+?)\r?\nEXPLANATION:\s*([\s\S]*?)\r?\nEND_FILE/g;
+  const blockRegex =
+    /FILE:\s*(.+?)\r?\nEXPLANATION:\s*([\s\S]*?)\r?\nEND_FILE/g;
   let match: RegExpExecArray | null;
 
   while ((match = blockRegex.exec(value)) !== null) {
