@@ -81,22 +81,25 @@ Explanation:
 
 export const buildDiffFileNamePrompt = (
   diff: string,
-  branchName: string,
 ): string =>
   `
-Generate a precise filename slug for a markdown report of these staged changes.
+Classify these staged changes and produce a concise structured filename basis.
 
 Rules:
-- Return only the filename slug
-- Use lowercase letters, numbers, and hyphens only
+- Return exactly two lines and nothing else
+- First line format: type: <value>
+- Second line format: topic: <value>
+- type must be one of: feat, fix, refactor, chore, docs, style, test, perf, bugfix
+- topic must be 1 to 3 lowercase hyphen-separated words
+- topic must describe the actual change area
+- Do not include branch names
+- Do not include dates
 - Do not include the .md extension
-- Keep it between 3 and 8 words
-- Make it specific to the actual changes
-- Do not include markdown, quotes, or explanations
-- The branch is "${branchName || "unknown"}"
+- Do not include quotes, markdown, bullets, or explanations
+- Avoid generic filler words like proposed, report, diff, and changes unless absolutely necessary
 
 Git diff:
 ${diff}
 
-Filename slug:
+Result:
 `.trim();

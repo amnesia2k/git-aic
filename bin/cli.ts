@@ -1,6 +1,7 @@
 #!/usr/bin/env ts-node
 
 import { Command } from "commander";
+import { arrows_3 } from "cli-loaders";
 import { simpleGit } from "simple-git";
 import type { SimpleGit } from "simple-git";
 import chalk from "chalk";
@@ -16,18 +17,11 @@ import {
   generateDiffFileName,
 } from "../src/llm.js";
 import { spawnSync } from "child_process";
-import {
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  writeFileSync,
-} from "fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 
 const git: SimpleGit = simpleGit();
 const program = new Command();
-
-const SPINNER_FRAMES = ["|", "/", "-", "\\"];
 
 const createLoader = () => {
   let timer: NodeJS.Timeout | null = null;
@@ -39,7 +33,7 @@ const createLoader = () => {
       return;
     }
 
-    const frame = SPINNER_FRAMES[frameIndex % SPINNER_FRAMES.length];
+    const frame = arrows_3.keyframes[frameIndex % arrows_3.keyframes.length];
     frameIndex += 1;
     process.stdout.write(`\r${chalk.cyan(frame)} ${message}`);
   };
@@ -63,7 +57,7 @@ const createLoader = () => {
         clearInterval(timer);
       }
 
-      timer = setInterval(render, 80);
+      timer = setInterval(render, arrows_3.speed);
     },
     update(nextMessage: string) {
       message = nextMessage;
@@ -195,8 +189,12 @@ const selectFilesForOperation = async (
   }
 
   const filesToUse = selectedFiles as string[];
-  const filesToUnstage = status.staged.filter((file) => !filesToUse.includes(file));
-  const filesToStage = filesToUse.filter((file) => !status.staged.includes(file));
+  const filesToUnstage = status.staged.filter(
+    (file) => !filesToUse.includes(file),
+  );
+  const filesToStage = filesToUse.filter(
+    (file) => !status.staged.includes(file),
+  );
 
   if (filesToUnstage.length > 0) {
     await unstageFiles(filesToUnstage);
@@ -246,9 +244,8 @@ const ensureGitDiffsIgnored = () => {
     return;
   }
 
-  const separator = currentContents.endsWith("\n") || currentContents.length === 0
-    ? ""
-    : "\n";
+  const separator =
+    currentContents.endsWith("\n") || currentContents.length === 0 ? "" : "\n";
 
   writeFileSync(
     gitignorePath,
@@ -270,7 +267,11 @@ const createDiffMarkdown = async (
       `Explaining diff ${index + 1}/${stagedFileDiffs.length}: ${filePath}`,
     );
 
-    const explanation = await generateDiffExplanation(filePath, diff, branchName);
+    const explanation = await generateDiffExplanation(
+      filePath,
+      diff,
+      branchName,
+    );
 
     sections.push(
       [
@@ -386,8 +387,11 @@ program.action(async (options) => {
       }
 
       loader.update("Generating AI report filename");
-      const aiFileName = await generateDiffFileName(finalDiff, branchName);
-      const markdownPath = getAvailableMarkdownPath(outputDirectory, aiFileName);
+      const aiFileName = await generateDiffFileName(finalDiff);
+      const markdownPath = getAvailableMarkdownPath(
+        outputDirectory,
+        aiFileName,
+      );
 
       const markdown = await createDiffMarkdown(
         branchName,

@@ -8,6 +8,7 @@
         "@clack/prompts": "^1.1.0",
         "axios": "^1.13.6",
         "chalk": "^5.6.2",
+        "cli-loaders": "^3.0.0",
         "commander": "^14.0.3",
         "simple-git": "^3.32.3",
       },
@@ -116,6 +117,8 @@
     "call-bind-apply-helpers": ["call-bind-apply-helpers@1.0.2", "", { "dependencies": { "es-errors": "^1.3.0", "function-bind": "^1.1.2" } }, "sha512-Sp1ablJ0ivDkSzjcaJdxEunN5/XvksFJ2sMBFfq6x0ryhQV/2b/KwFe21cMpmHtPOSij8K99/wSfoEuTObmuMQ=="],
 
     "chalk": ["chalk@5.6.2", "", {}, "sha512-7NzBL0rN6fMUW+f7A6Io4h40qQlG+xGmtMxfbnH/K7TAtt8JQWVQK+6g0UXKMeVJoyV5EkkNsErQ8pVD3bLHbA=="],
+
+    "cli-loaders": ["cli-loaders@3.0.0", "", {}, "sha512-BBVYI5sZ+BviC51hNpPK1RxqLBJEU8uAq5zWSgPQpL2ZJddy8DvSoj//SHLdNg0r/dkpA7NHQ6nYnuM2E9lwAQ=="],
 
     "combined-stream": ["combined-stream@1.0.8", "", { "dependencies": { "delayed-stream": "~1.0.0" } }, "sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg=="],
 

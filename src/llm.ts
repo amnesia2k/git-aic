@@ -22,6 +22,18 @@ interface GeminiResponse {
   candidates: GeminiCandidate[];
 }
 
+const VALID_DIFF_FILE_TYPES = new Set([
+  "feat",
+  "fix",
+  "refactor",
+  "chore",
+  "docs",
+  "style",
+  "test",
+  "perf",
+  "bugfix",
+]);
+
 const API_URL =
   "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent";
 
@@ -83,6 +95,38 @@ const requestText = async (prompt: string, fallback: string) => {
   }
 };
 
+const sanitizeTopic = (value: string) => {
+  const sanitized = value
+    .trim()
+    .toLowerCase()
+    .replace(/\.md$/i, "")
+    .replace(/[^a-z0-9-]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  const tokens = sanitized.split("-").filter(Boolean).slice(0, 3);
+
+  return tokens.join("-");
+};
+
+const parseDiffFileName = (value: string) => {
+  const lines = value
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  const typeLine = lines.find((line) => /^type\s*:/i.test(line));
+  const topicLine = lines.find((line) => /^topic\s*:/i.test(line));
+
+  const rawType = typeLine?.replace(/^type\s*:/i, "").trim().toLowerCase() || "";
+  const rawTopic = topicLine?.replace(/^topic\s*:/i, "").trim() || "";
+
+  const type = VALID_DIFF_FILE_TYPES.has(rawType) ? rawType : "chore";
+  const topic = sanitizeTopic(rawTopic) || "changes";
+
+  return `${type}-${topic}`;
+};
+
 export const generateCommitMessage = async (
   rawDiff: string,
   branchName: string,
@@ -107,16 +151,9 @@ export const generateDiffExplanation = async (
 
 export const generateDiffFileName = async (
   rawDiff: string,
-  branchName: string,
 ): Promise<string> => {
-  const prompt = buildDiffFileNamePrompt(rawDiff, branchName);
-  const rawName = await requestText(prompt, `proposed-${branchName || "diff"}`);
+  const prompt = buildDiffFileNamePrompt(rawDiff);
+  const rawName = await requestText(prompt, "type: chore\ntopic: changes");
 
-  return rawName
-    .trim()
-    .toLowerCase()
-    .replace(/\.md$/i, "")
-    .replace(/[^a-z0-9-]+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "") || "proposed-diff";
+  return parseDiffFileName(rawName);
 };

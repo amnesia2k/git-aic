@@ -27,6 +27,7 @@
     "@clack/prompts": "^1.1.0",
     "axios": "^1.13.6",
     "chalk": "^5.6.2",
+    "cli-loaders": "^3.0.0",
     "commander": "^14.0.3",
     "simple-git": "^3.32.3"
   }
