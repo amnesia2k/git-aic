@@ -8,7 +8,9 @@ import chalk from "chalk";
 import {
   getGitDiff,
   getBranchName,
+  getHeadCommitInfo,
   getStagedFileDiffs,
+  type HeadCommitInfo,
   type StagedFileDiff,
 } from "../src/git.js";
 import {
@@ -256,6 +258,7 @@ const ensureGitDiffsIgnored = () => {
 
 const createDiffMarkdown = async (
   branchName: string,
+  headCommit: HeadCommitInfo,
   stagedFileDiffs: StagedFileDiff[],
   updateStatus: (message: string) => void,
 ) => {
@@ -288,6 +291,8 @@ const createDiffMarkdown = async (
     "",
     `Generated: ${new Date().toISOString()}`,
     `Branch: ${branchName || "unknown"}`,
+    `Base Commit: ${headCommit.short}`,
+    `Base Commit Full: ${headCommit.full}`,
     "",
     "## Files",
     "",
@@ -370,6 +375,7 @@ program.action(async (options) => {
 
     if (options.diff) {
       const branchName = await getBranchName();
+      const headCommit = await getHeadCommitInfo();
       loader.start("Collecting per-file staged diffs");
       const stagedFileDiffs = await getStagedFileDiffs();
       const outputDirectory = join(process.cwd(), "git-diffs");
@@ -392,6 +398,7 @@ program.action(async (options) => {
 
       const markdown = await createDiffMarkdown(
         branchName,
+        headCommit,
         stagedFileDiffs,
         (message) => loader.update(message),
       );

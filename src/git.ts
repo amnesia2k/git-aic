@@ -8,6 +8,11 @@ export interface StagedFileDiff {
   diff: string;
 }
 
+export interface HeadCommitInfo {
+  short: string;
+  full: string;
+}
+
 export const getGitDiff = async () => {
   try {
     await git.raw(["config", "core.autocrlf", "true"]);
@@ -52,5 +57,23 @@ export const getStagedFileDiffs = async (): Promise<StagedFileDiff[]> => {
   } catch (error) {
     console.error(error);
     return [];
+  }
+};
+
+export const getHeadCommitInfo = async (): Promise<HeadCommitInfo> => {
+  try {
+    const full = (await git.revparse(["HEAD"])).trim();
+    const short = (await git.revparse(["--short", "HEAD"])).trim();
+
+    return {
+      short,
+      full,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      short: "unknown",
+      full: "unknown",
+    };
   }
 };
