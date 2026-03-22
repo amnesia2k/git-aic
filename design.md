@@ -8,8 +8,8 @@ This document provides a structured breakdown of the **Git AIC** CLI tool to gui
 
 - **Primary Headline**: AI-Powered Conventional Commits & Diff Explanations.
 - **Supporting Headline**: A high-performance TypeScript CLI that turns your staged changes into perfectly formatted conventional commits and AI-explained markdown reports.
-- **Primary Call to Action (CTA)**: `bun install -g git-aic` (or link to Installation section).
-- **Secondary Call to Action**: [View on GitHub](https://github.com/amnesia2k/git-aic).
+- **Primary Call to Action (CTA)**: `npm install -g @amnesia2k/git-aic` (Global installation).
+- **Secondary Call to Action**: [View on GitHub](https://github.com/amnesia2k/git-aic) (For local development).
 - **Key Visual (Hero Area)**: A sleek, dark-themed terminal mock-up showing an interactive file selection (`@clack/prompts`) followed by a generated commit message: `feat(api/main): implement user authentication flow`.
 
 ---
@@ -65,28 +65,29 @@ This document provides a structured breakdown of the **Git AIC** CLI tool to gui
 
 ## 6. Installation & Quick Start
 
-- **Step 1**: Clone repo & Install.
-  ```bash
-  git clone https://github.com/amnesia2k/git-aic.git
-  cd git-aic && bun install
-  ```
-- **Step 2**: Set Gemini API Key.
-  ```bash
-  export GEMINI_COMMIT_MESSAGE_API_KEY=your_key_here
-  ```
-- **Step 3**: Create an Alias.
-  ```bash
-  git config --global alias.aic '!npx tsx /path/to/git-aic/bin/cli.ts'
-  ```
+### Path A: Global NPM (Fastest)
+
+1.  **Install**: `npm install -g @amnesia2k/git-aic`
+2.  **Config**: `git aic set-key your_key_here`
+3.  **Alias**: `git aic alias`
+4.  **Run**: `git aic`
+
+### Path B: Local Clone (Development)
+
+1.  **Clone**: `git clone https://github.com/amnesia2k/git-aic.git`
+2.  **Install**: `cd git-aic && bun install`
+3.  **Config**: Set `GEMINI_COMMIT_MESSAGE_API_KEY` environment variable.
+4.  **Alias**: `git config --global alias.aic '!npx tsx /path/to/git-aic/bin/cli.ts'`
 
 ---
 
 ## 7. Design Aesthetics (Website Style Guide)
 
-- **Theme**: Dark Mode (Code-centric).
-- **Colors**:
-  - Primary: Gemini Cyan (`#00FFFF`).
-  - Secondary: Terminal Green (`#00FF00`).
-  - Background: Deep Slate (`#0B0E14`).
-- **Typography**: Monospace (JetBrains Mono or Fira Code) for code samples; Inter for body text.
-- **Animations**: Subtle "typing" effects for command examples and pulsing states for "AI Analysis".
+- **Aesthetic Direction**: Liquid-Glass + Black Terminal.
+- **Theme**: Ultra-Dark Mode with high-contrast glassmorphism.
+- **Typography**: Precision Monospace (e.g., JetBrains Mono) for code blocks; Modern Sans-Serif (e.g., Inter) for UI text.
+- **Visual Elements**:
+  - Blurred, translucent "glass" overlays for UI components to create depth.
+  - Deep black obsidian backgrounds for terminal sections to maintain a code-centric focus.
+  - Fluid, "liquid" animated gradients for background depth to add dynamic energy.
+- **Animations**: Silky smooth transitions, subtle glass refraction effects, and authentic terminal typing animations for a premium developer experience.
