@@ -79,7 +79,7 @@ bun install -g @amnesia2k/git-aic
 
 Once installed, you can skip the manual setup and use the built-in configuration commands:
 
-- `git-aic set-key <your-key>`
+- `git-aic set-key your_gemini_api_key_here`
 - `git-aic alias`
 
 ### 2. Local Development (Clone)

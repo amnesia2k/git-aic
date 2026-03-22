@@ -9,7 +9,7 @@
   },
   "private": false,
   "bin": {
-    "git-aic": "./dist/bin/cli.js"
+    "git-aic": "dist/bin/cli.js"
   },
   "files": [
     "dist/",
