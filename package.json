@@ -4,6 +4,14 @@
   "version": "2.1.2",
   "description": "Git AIC",
   "main": "dist/bin/cli.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amnesia2k/git-aic.git"
+  },
+  "bugs": {
+    "url": "https://github.com/amnesia2k/git-aic/issues"
+  },
+  "homepage": "https://github.com/amnesia2k/git-aic#readme",
   "publishConfig": {
     "access": "public"
   },
