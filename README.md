@@ -203,13 +203,17 @@ If a filename already exists, numeric suffixes are used:
 | Technology                                                                                                          | Description                                                     |
 | ------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
 | ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)   | Primary language for robust and scalable code.                  |
+| ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)         | JavaScript runtime used to execute the CLI tool.                |
 | ![Bun](https://img.shields.io/badge/Bun-000?style=for-the-badge&logo=bun&logoColor=fff)                             | Fast all-in-one JavaScript runtime.                             |
 | ![Google Gemini](https://img.shields.io/badge/Google_Gemini-FF681A?style=for-the-badge&logo=google&logoColor=white) | Large Language Model for intelligent commit message generation. |
 | ![Axios](https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white)                  | Promise-based HTTP client for API requests.                     |
 | ![simple-git](https://img.shields.io/badge/simple--git-E44C30?style=for-the-badge&logo=git&logoColor=white)         | Facilitates Git operations programmatically.                    |
 | ![Clack Prompts](https://img.shields.io/badge/Clack_Prompts-A26DFD?style=for-the-badge&logo=npm&logoColor=white)    | Interactive command-line interface prompts.                     |
+| ![cli-loaders](https://img.shields.io/badge/cli--loaders-111111?style=for-the-badge&logo=npm&logoColor=white)       | Provides animated terminal loaders for visible CLI progress.    |
 | ![Chalk](https://img.shields.io/badge/Chalk-FFB601?style=for-the-badge&logo=npm&logoColor=white)                    | Terminal string styling for enhanced readability.               |
 | ![Commander.js](https://img.shields.io/badge/Commander.js-F5F5F5?style=for-the-badge&logo=npm&logoColor=black)      | Framework for building robust command-line interfaces.          |
+| ![tsx](https://img.shields.io/badge/tsx-3178C6?style=for-the-badge&logo=typescript&logoColor=white)                 | Runs the TypeScript CLI entrypoint directly during local usage. |
+| ![ts-node](https://img.shields.io/badge/ts--node-3178C6?style=for-the-badge&logo=typescript&logoColor=white)        | Supports direct TypeScript execution in the project scripts.    |
 
 <!-- ## Contributing
 
