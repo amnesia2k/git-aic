@@ -34,6 +34,7 @@ export function Navbar() {
   const navLinks = [
     { name: 'Features', href: '#features' },
     { name: 'Workflows', href: '#workflows' },
+    { name: 'API Key', href: '#gemini-api-key' },
     { name: 'Installation', href: '#installation' },
   ]
 

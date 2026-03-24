@@ -5,6 +5,7 @@ import { ValueProps } from '@/components/landing/value-props'
 import { WorkflowCommit } from '@/components/landing/workflow-commit'
 import { WorkflowDiff } from '@/components/landing/workflow-diff'
 import { TechStack } from '@/components/landing/tech-stack'
+import { GeminiApiKey } from '@/components/landing/gemini-api-key'
 import { Installation } from '@/components/landing/installation'
 import { Footer } from '@/components/landing/footer'
 import { ScrollToTop } from '@/components/landing/scroll-to-top'
@@ -99,6 +100,7 @@ function IndexPage() {
         <WorkflowCommit />
         <WorkflowDiff />
         <TechStack />
+        <GeminiApiKey />
         <Installation />
         {/* <CtaBanner /> */}
       </main>

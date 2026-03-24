@@ -266,6 +266,69 @@ const ensureGitDiffsIgnored = () => {
   );
 };
 
+const ensureGitRepoOrHandleInit = async (): Promise<"ready" | "exit"> => {
+  if (await git.checkIsRepo()) {
+    return "ready";
+  }
+
+  const p = await import("@clack/prompts");
+
+  p.intro(chalk.bgCyan(chalk.black(" Git AIC ")));
+  console.log(
+    chalk.yellow("This folder is not a Git repository."),
+  );
+
+  const shouldInitialize = await p.confirm({
+    message: "Initialize Git here?",
+  });
+
+  if (p.isCancel(shouldInitialize)) {
+    p.outro(chalk.yellow("Git initialization cancelled. Exiting."));
+    return "exit";
+  }
+
+  if (!shouldInitialize) {
+    p.outro(chalk.yellow("Git initialization skipped. Exiting."));
+    return "exit";
+  }
+
+  const initResult = spawnSync("git", ["init"], { stdio: "inherit" });
+
+  if (initResult.status !== 0) {
+    p.outro(chalk.red("Git initialization failed."));
+    process.exit(1);
+  }
+
+  if (!(await git.checkIsRepo())) {
+    p.outro(chalk.red("Git initialization failed: repository check did not pass."));
+    process.exit(1);
+  }
+
+  const nextStep = await p.select({
+    message: "Git initialized. What do you want to do next?",
+    options: [
+      {
+        value: "continue",
+        label: "Continue",
+        hint: "resume this git aic command now",
+      },
+      {
+        value: "exit",
+        label: "Exit",
+        hint: "stop here and continue manually",
+      },
+    ],
+  });
+
+  if (p.isCancel(nextStep) || nextStep === "exit") {
+    p.outro(chalk.blue("Repository initialized. Exiting."));
+    return "exit";
+  }
+
+  p.outro(chalk.green("Repository initialized. Continuing..."));
+  return "ready";
+};
+
 const createDiffMarkdown = async (
   branchName: string,
   headCommit: HeadCommitInfo,
@@ -381,6 +444,12 @@ program.action(async (options) => {
   const loader = createLoader();
 
   try {
+    const repoState = await ensureGitRepoOrHandleInit();
+
+    if (repoState === "exit") {
+      process.exit(0);
+    }
+
     loader.start("Inspecting repository changes");
     let status = await git.status();
 
