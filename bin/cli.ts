@@ -329,6 +329,79 @@ const ensureGitRepoOrHandleInit = async (): Promise<"ready" | "exit"> => {
   return "ready";
 };
 
+const pushWithUpstreamRecovery = async (branchName: string) => {
+  console.log(chalk.blue("\n> ran: git push"));
+  const pushResult = spawnSync("git", ["push"], {
+    encoding: "utf8",
+    stdio: ["inherit", "pipe", "pipe"],
+  });
+
+  if (pushResult.status === 0) {
+    if (pushResult.stdout?.trim()) {
+      process.stdout.write(pushResult.stdout);
+    }
+
+    if (pushResult.stderr?.trim()) {
+      process.stderr.write(pushResult.stderr);
+    }
+
+    console.log(chalk.green("Push successful"));
+    return;
+  }
+
+  const stderr = pushResult.stderr?.trim() || "";
+  const stdout = pushResult.stdout?.trim() || "";
+  const missingUpstreamError =
+    stderr.includes("has no upstream branch") && branchName.trim().length > 0;
+
+  if (!missingUpstreamError) {
+    if (stdout) {
+      process.stdout.write(`${stdout}\n`);
+    }
+
+    if (stderr) {
+      process.stderr.write(`${stderr}\n`);
+    }
+
+    throw new Error(`Git push failed with status ${pushResult.status}`);
+  }
+
+  const p = await import("@clack/prompts");
+  const suggestedCommand = `git push --set-upstream origin ${branchName}`;
+
+  p.intro(chalk.bgCyan(chalk.black(" Git AIC ")));
+  console.log(chalk.yellow("\nGit could not push this branch because no upstream is set.\n"));
+  console.log(chalk.red(stderr));
+  console.log("");
+  console.log(chalk.blue("Suggested command:"));
+  console.log(chalk.cyan(`  ${suggestedCommand}`));
+  console.log("");
+
+  const shouldSetUpstream = await p.confirm({
+    message: `Set upstream to origin/${branchName} and push now?`,
+  });
+
+  if (p.isCancel(shouldSetUpstream) || !shouldSetUpstream) {
+    p.outro(chalk.yellow("Push cancelled. Commit was created locally."));
+    process.exit(0);
+  }
+
+  console.log(chalk.blue(`\n> ran: ${suggestedCommand}`));
+  const setUpstreamResult = spawnSync(
+    "git",
+    ["push", "--set-upstream", "origin", branchName],
+    { stdio: "inherit" },
+  );
+
+  if (setUpstreamResult.status !== 0) {
+    throw new Error(
+      `Git push --set-upstream failed with status ${setUpstreamResult.status}`,
+    );
+  }
+
+  p.outro(chalk.green(`Upstream set to origin/${branchName} and push successful.`));
+};
+
 const createDiffMarkdown = async (
   branchName: string,
   headCommit: HeadCommitInfo,
@@ -586,14 +659,7 @@ program.action(async (options) => {
     console.log(chalk.green("\nCommit successful"));
 
     if (options.push) {
-      console.log(chalk.blue("\n> ran: git push"));
-      const pushResult = spawnSync("git", ["push"], { stdio: "inherit" });
-
-      if (pushResult.status !== 0) {
-        throw new Error(`Git push failed with status ${pushResult.status}`);
-      }
-
-      console.log(chalk.green("Push successful"));
+      await pushWithUpstreamRecovery(branchName);
     }
   } catch (error: any) {
     if (
