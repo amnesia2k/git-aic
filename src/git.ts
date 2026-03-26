@@ -35,6 +35,21 @@ export const getBranchName = async () => {
   }
 };
 
+export const getBranchUpstream = async () => {
+  try {
+    const upstream = await git.raw([
+      "rev-parse",
+      "--abbrev-ref",
+      "--symbolic-full-name",
+      "@{u}",
+    ]);
+
+    return upstream.trim();
+  } catch (error) {
+    return "";
+  }
+};
+
 export const getStagedFileDiffs = async (): Promise<FileDiff[]> => {
   try {
     const status = await git.status();

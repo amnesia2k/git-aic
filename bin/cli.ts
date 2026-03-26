@@ -8,6 +8,7 @@ import chalk from "chalk";
 import {
   getGitDiff,
   getBranchName,
+  getBranchUpstream,
   getHeadCommitInfo,
   getSelectedFileDiffs,
   getSelectedFilesDiff,
@@ -330,40 +331,30 @@ const ensureGitRepoOrHandleInit = async (): Promise<"ready" | "exit"> => {
 };
 
 const pushWithUpstreamRecovery = async (branchName: string) => {
-  console.log(chalk.blue("\n> ran: git push"));
-  const pushResult = spawnSync("git", ["push"], {
-    encoding: "utf8",
-    stdio: ["inherit", "pipe", "pipe"],
-  });
+  const upstream = await getBranchUpstream();
 
-  if (pushResult.status === 0) {
-    if (pushResult.stdout?.trim()) {
-      process.stdout.write(pushResult.stdout);
-    }
+  if (upstream) {
+    console.log(chalk.blue("\n> ran: git push"));
+    const pushResult = spawnSync("git", ["push"], { stdio: "inherit" });
 
-    if (pushResult.stderr?.trim()) {
-      process.stderr.write(pushResult.stderr);
+    if (pushResult.status !== 0) {
+      throw new Error(`Git push failed with status ${pushResult.status}`);
     }
 
     console.log(chalk.green("Push successful"));
     return;
   }
 
-  const stderr = pushResult.stderr?.trim() || "";
-  const stdout = pushResult.stdout?.trim() || "";
-  const missingUpstreamError =
-    stderr.includes("has no upstream branch") && branchName.trim().length > 0;
+  if (!branchName.trim()) {
+    console.log(chalk.blue("\n> ran: git push"));
+    const pushResult = spawnSync("git", ["push"], { stdio: "inherit" });
 
-  if (!missingUpstreamError) {
-    if (stdout) {
-      process.stdout.write(`${stdout}\n`);
+    if (pushResult.status !== 0) {
+      throw new Error(`Git push failed with status ${pushResult.status}`);
     }
 
-    if (stderr) {
-      process.stderr.write(`${stderr}\n`);
-    }
-
-    throw new Error(`Git push failed with status ${pushResult.status}`);
+    console.log(chalk.green("Push successful"));
+    return;
   }
 
   const p = await import("@clack/prompts");
@@ -371,8 +362,6 @@ const pushWithUpstreamRecovery = async (branchName: string) => {
 
   p.intro(chalk.bgCyan(chalk.black(" Git AIC ")));
   console.log(chalk.yellow("\nGit could not push this branch because no upstream is set.\n"));
-  console.log(chalk.red(stderr));
-  console.log("");
   console.log(chalk.blue("Suggested command:"));
   console.log(chalk.cyan(`  ${suggestedCommand}`));
   console.log("");
