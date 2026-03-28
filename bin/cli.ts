@@ -128,6 +128,85 @@ const getSelectableChangedFiles = (
   status: Awaited<ReturnType<SimpleGit["status"]>>,
 ) => getChangedFiles(status).filter((file) => !status.deleted.includes(file));
 
+interface FileChangeSummary {
+  filePath: string;
+  additions: number;
+  deletions: number;
+}
+
+const countDiffLines = (diff: string) => {
+  const lines = diff.split("\n");
+  let additions = 0;
+  let deletions = 0;
+
+  lines.forEach((line) => {
+    if (
+      line.startsWith("+++") ||
+      line.startsWith("---") ||
+      line.startsWith("@@")
+    ) {
+      return;
+    }
+
+    if (line.startsWith("+")) {
+      additions += 1;
+      return;
+    }
+
+    if (line.startsWith("-")) {
+      deletions += 1;
+    }
+  });
+
+  return { additions, deletions };
+};
+
+const formatChangeSummary = (
+  additions: number,
+  deletions: number,
+  useColor = false,
+) => {
+  const addLabel = `+${additions}`;
+  const deleteLabel = `-${deletions}`;
+
+  if (!useColor) {
+    return `(${addLabel}, ${deleteLabel})`;
+  }
+
+  return `(${chalk.green(addLabel)}, ${chalk.red(deleteLabel)})`;
+};
+
+const summarizeFileChanges = async (
+  filePaths: string[],
+): Promise<Map<string, FileChangeSummary>> => {
+  const summaries = new Map<string, FileChangeSummary>();
+
+  if (filePaths.length === 0) {
+    return summaries;
+  }
+
+  const fileDiffs = await getSelectedFileDiffs(filePaths);
+
+  filePaths.forEach((filePath) => {
+    summaries.set(filePath, {
+      filePath,
+      additions: 0,
+      deletions: 0,
+    });
+  });
+
+  fileDiffs.forEach(({ filePath, diff }) => {
+    const { additions, deletions } = countDiffLines(diff);
+    summaries.set(filePath, {
+      filePath,
+      additions,
+      deletions,
+    });
+  });
+
+  return summaries;
+};
+
 const unstageFiles = async (files: string[]) => {
   if (files.length === 0) {
     return;
@@ -155,6 +234,7 @@ const unstageFiles = async (files: string[]) => {
 const selectFilesForOperation = async (
   actionLabel: string,
   files: string[],
+  changeSummaries?: Map<string, FileChangeSummary>,
 ) => {
   if (files.length === 0) {
     return;
@@ -172,7 +252,10 @@ const selectFilesForOperation = async (
     message: `Select the files you want to ${actionLabel}:`,
     options: files.map((file) => ({
       value: file,
-      label: file,
+      label: `${file} ${formatChangeSummary(
+        changeSummaries?.get(file)?.additions || 0,
+        changeSummaries?.get(file)?.deletions || 0,
+      )}`,
     })),
     required: false,
   });
@@ -499,6 +582,10 @@ program.action(async (options) => {
         await git.add(status.deleted);
         status = await git.status();
       }
+
+      if (selectableFiles.length > 0) {
+        loader.update(`Summarizing ${selectableFiles.length} changed file(s)`);
+      }
     }
 
     const actionLabel = options.diff
@@ -509,9 +596,19 @@ program.action(async (options) => {
     let selectedFiles: string[] = [];
 
     if (!options.diff) {
+      const changeSummaries = await summarizeFileChanges(selectableFiles);
       loader.stop();
       console.log(chalk.blue("\nDetected local changes:"));
-      selectableFiles.forEach((file) => console.log(chalk.cyan(`- ${file}`)));
+      selectableFiles.forEach((file) => {
+        const summary = changeSummaries.get(file);
+        console.log(
+          `${chalk.cyan("-")} ${file} ${formatChangeSummary(
+            summary?.additions || 0,
+            summary?.deletions || 0,
+            true,
+          )}`,
+        );
+      });
 
       if (status.deleted.length > 0) {
         console.log(
@@ -525,7 +622,11 @@ program.action(async (options) => {
 
       if (selectableFiles.length > 0) {
         selectedFiles =
-          (await selectFilesForOperation(actionLabel, selectableFiles)) || [];
+          (await selectFilesForOperation(
+            actionLabel,
+            selectableFiles,
+            changeSummaries,
+          )) || [];
       }
 
       loader.start("Preparing staged selection");
