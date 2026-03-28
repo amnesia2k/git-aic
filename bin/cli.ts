@@ -124,34 +124,9 @@ const getChangedFiles = (status: Awaited<ReturnType<SimpleGit["status"]>>) =>
     ]),
   );
 
-const unstageFiles = async (files: string[]) => {
-  if (files.length === 0) {
-    return;
-  }
-
-  const restoreResult = spawnSync(
-    "git",
-    ["restore", "--staged", "--", ...files],
-    { stdio: "ignore" },
-  );
-
-  if (restoreResult.status === 0) {
-    return;
-  }
-
-  const resetResult = spawnSync("git", ["reset", "HEAD", "--", ...files], {
-    stdio: "ignore",
-  });
-
-  if (resetResult.status !== 0) {
-    throw new Error("Failed to update staged file selection");
-  }
-};
-
 const selectFilesForOperation = async (
   actionLabel: string,
   status: Awaited<ReturnType<SimpleGit["status"]>>,
-  shouldStageSelection: boolean,
 ) => {
   const changedFiles = getChangedFiles(status);
 
@@ -160,15 +135,7 @@ const selectFilesForOperation = async (
   }
 
   if (changedFiles.length === 1) {
-    const onlyFile = changedFiles[0];
-
-    if (shouldStageSelection && !status.staged.includes(onlyFile)) {
-      console.log(chalk.cyan(`\nOnly one changed file found: ${onlyFile}`));
-      console.log(chalk.blue("Staging 1 file..."));
-      await git.add(onlyFile);
-    }
-
-    return [onlyFile];
+    return [changedFiles[0]];
   }
 
   const p = await import("@clack/prompts");
@@ -195,29 +162,7 @@ const selectFilesForOperation = async (
   }
 
   const filesToUse = selectedFiles as string[];
-  if (!shouldStageSelection) {
-    p.outro(chalk.blue(`Using ${filesToUse.length} selected file(s)...`));
-    return filesToUse;
-  }
-
-  const filesToUnstage = status.staged.filter(
-    (file) => !filesToUse.includes(file),
-  );
-  const filesToStage = filesToUse.filter(
-    (file) => !status.staged.includes(file),
-  );
-
-  if (filesToUnstage.length > 0) {
-    await unstageFiles(filesToUnstage);
-  }
-
-  if (filesToStage.length > 0) {
-    p.outro(chalk.blue(`Staging ${filesToStage.length} file(s)...`));
-    await git.add(filesToStage);
-  } else {
-    p.outro(chalk.blue(`Using ${filesToUse.length} selected file(s)...`));
-  }
-
+  p.outro(chalk.blue(`Using ${filesToUse.length} selected file(s)...`));
   return filesToUse;
 };
 
@@ -514,18 +459,20 @@ program.action(async (options) => {
 
     loader.start("Inspecting repository changes");
     let status = await git.status();
-
-    if (!options.diff && status.deleted.length > 0) {
-      loader.update(`Auto-staging ${status.deleted.length} deleted file(s)`);
-      await git.add(status.deleted);
-      status = await git.status();
-    }
-
     const changedFiles = getChangedFiles(status);
+    const stagedFiles = Array.from(new Set(status.staged));
 
-    if (changedFiles.length === 0) {
+    if (options.diff && changedFiles.length === 0) {
       loader.stop();
       console.log(chalk.yellow("No files changed in this repository."));
+      process.exit(0);
+    }
+
+    if (!options.diff && stagedFiles.length === 0) {
+      loader.stop();
+      console.log(
+        chalk.yellow("No staged changes found. Stage files manually and rerun git aic."),
+      );
       process.exit(0);
     }
 
@@ -536,22 +483,18 @@ program.action(async (options) => {
         : "commit";
     let selectedFiles: string[] = [];
 
-    if (changedFiles.length > 1) {
+    if (options.diff && changedFiles.length > 1) {
       loader.stop();
-      selectedFiles =
-        (await selectFilesForOperation(actionLabel, status, !options.diff)) ||
-        [];
-    } else if (!status.staged.includes(changedFiles[0])) {
+      selectedFiles = (await selectFilesForOperation(actionLabel, status)) || [];
+    } else if (options.diff && !status.staged.includes(changedFiles[0])) {
       loader.stop();
-      selectedFiles =
-        (await selectFilesForOperation(actionLabel, status, !options.diff)) ||
-        [];
+      selectedFiles = (await selectFilesForOperation(actionLabel, status)) || [];
     } else {
-      selectedFiles = options.diff ? changedFiles : status.staged;
+      selectedFiles = options.diff ? changedFiles : stagedFiles;
       loader.succeed(
         options.diff
           ? "Using the currently selected file set for diff report"
-          : "Using the currently staged file selection",
+          : "Using the currently staged file set",
       );
     }
 
