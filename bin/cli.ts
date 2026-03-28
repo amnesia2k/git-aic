@@ -124,6 +124,10 @@ const getChangedFiles = (status: Awaited<ReturnType<SimpleGit["status"]>>) =>
     ]),
   );
 
+const getSelectableChangedFiles = (
+  status: Awaited<ReturnType<SimpleGit["status"]>>,
+) => getChangedFiles(status).filter((file) => !status.deleted.includes(file));
+
 const unstageFiles = async (files: string[]) => {
   if (files.length === 0) {
     return;
@@ -150,17 +154,14 @@ const unstageFiles = async (files: string[]) => {
 
 const selectFilesForOperation = async (
   actionLabel: string,
-  status: Awaited<ReturnType<SimpleGit["status"]>>,
-  shouldStageSelection: boolean,
+  files: string[],
 ) => {
-  const changedFiles = getChangedFiles(status);
-
-  if (changedFiles.length === 0) {
+  if (files.length === 0) {
     return;
   }
 
-  if (changedFiles.length === 1 && !shouldStageSelection) {
-    return [changedFiles[0]];
+  if (files.length === 1) {
+    return [files[0]];
   }
 
   const p = await import("@clack/prompts");
@@ -169,11 +170,10 @@ const selectFilesForOperation = async (
 
   const selectedFiles = await p.multiselect({
     message: `Select the files you want to ${actionLabel}:`,
-    options: changedFiles.map((file) => ({
+    options: files.map((file) => ({
       value: file,
-      label: status.staged.includes(file) ? `${file} (staged)` : file,
+      label: file,
     })),
-    initialValues: status.staged,
     required: false,
   });
 
@@ -187,19 +187,6 @@ const selectFilesForOperation = async (
   }
 
   const filesToUse = selectedFiles as string[];
-  if (!shouldStageSelection) {
-    p.outro(chalk.blue(`Using ${filesToUse.length} selected file(s)...`));
-    return filesToUse;
-  }
-
-  const filesToUnstage = status.staged.filter(
-    (file) => !filesToUse.includes(file),
-  );
-
-  if (filesToUnstage.length > 0) {
-    await unstageFiles(filesToUnstage);
-  }
-
   p.outro(chalk.blue(`Using ${filesToUse.length} selected file(s)...`));
   return filesToUse;
 };
@@ -498,6 +485,7 @@ program.action(async (options) => {
     loader.start("Inspecting repository changes");
     let status = await git.status();
     const changedFiles = getChangedFiles(status);
+    const selectableFiles = getSelectableChangedFiles(status);
 
     if (changedFiles.length === 0) {
       loader.stop();
@@ -506,30 +494,67 @@ program.action(async (options) => {
     }
 
     if (!options.diff) {
-      loader.update(`Staging ${changedFiles.length} changed file(s)`);
-      await git.add(["--all"]);
-      status = await git.status();
+      if (status.deleted.length > 0) {
+        loader.update(`Auto-staging ${status.deleted.length} deleted file(s)`);
+        await git.add(status.deleted);
+        status = await git.status();
+      }
     }
 
     const actionLabel = options.diff
       ? "include in the diff report"
       : options.push
-        ? "commit and push"
-        : "commit";
+        ? "stage and commit"
+        : "stage and commit";
     let selectedFiles: string[] = [];
 
     if (!options.diff) {
       loader.stop();
-      selectedFiles =
-        (await selectFilesForOperation(actionLabel, status, true)) || [];
+      console.log(chalk.blue("\nDetected local changes:"));
+      selectableFiles.forEach((file) => console.log(chalk.cyan(`- ${file}`)));
+
+      if (status.deleted.length > 0) {
+        console.log(
+          chalk.blue(
+            `\nDeleted files auto-staged and excluded from selection: ${status.deleted.length}`,
+          ),
+        );
+      }
+
+      console.log("");
+
+      if (selectableFiles.length > 0) {
+        selectedFiles =
+          (await selectFilesForOperation(actionLabel, selectableFiles)) || [];
+      }
+
+      loader.start("Preparing staged selection");
+      const filesToUnstage = status.staged.filter(
+        (file) =>
+          !status.deleted.includes(file) && !selectedFiles.includes(file),
+      );
+
+      if (filesToUnstage.length > 0) {
+        loader.update(`Unstaging ${filesToUnstage.length} unselected file(s)`);
+        await unstageFiles(filesToUnstage);
+      }
+
+      const filesToStage = selectedFiles.filter(
+        (file) => !status.staged.includes(file),
+      );
+
+      if (filesToStage.length > 0) {
+        loader.update(`Staging ${filesToStage.length} selected file(s)`);
+        await git.add(filesToStage);
+      }
     } else if (changedFiles.length > 1) {
       loader.stop();
       selectedFiles =
-        (await selectFilesForOperation(actionLabel, status, false)) || [];
+        (await selectFilesForOperation(actionLabel, changedFiles)) || [];
     } else if (!status.staged.includes(changedFiles[0])) {
       loader.stop();
       selectedFiles =
-        (await selectFilesForOperation(actionLabel, status, false)) || [];
+        (await selectFilesForOperation(actionLabel, changedFiles)) || [];
     } else {
       selectedFiles = changedFiles;
       loader.succeed(
