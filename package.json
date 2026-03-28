@@ -1,7 +1,7 @@
 {
   "name": "@amnesia2k/git-aic",
   "type": "module",
-  "version": "2.1.9",
+  "version": "2.1.10",
   "description": "Git AIC",
   "main": "dist/bin/cli.js",
   "repository": {
