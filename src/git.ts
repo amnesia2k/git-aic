@@ -104,6 +104,13 @@ export const getSelectedFileDiffs = async (
     const status = await git.status();
     const fileDiffs = await Promise.all(
       filePaths.map(async (filePath) => {
+        if (status.deleted.includes(filePath)) {
+          return {
+            filePath,
+            diff: "",
+          };
+        }
+
         if (status.not_added.includes(filePath)) {
           return {
             filePath,

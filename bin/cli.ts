@@ -575,7 +575,9 @@ program.action(async (options) => {
     }
 
     status = await git.status();
-    const filesBeingUsed = options.diff ? selectedFiles : status.staged;
+    const filesBeingUsed = options.diff
+      ? selectedFiles.filter((file) => !status.deleted.includes(file))
+      : status.staged;
     loader.succeed(
       options.diff
         ? "Collected selected changes for diff report"
