@@ -124,9 +124,34 @@ const getChangedFiles = (status: Awaited<ReturnType<SimpleGit["status"]>>) =>
     ]),
   );
 
+const unstageFiles = async (files: string[]) => {
+  if (files.length === 0) {
+    return;
+  }
+
+  const restoreResult = spawnSync(
+    "git",
+    ["restore", "--staged", "--", ...files],
+    { stdio: "ignore" },
+  );
+
+  if (restoreResult.status === 0) {
+    return;
+  }
+
+  const resetResult = spawnSync("git", ["reset", "HEAD", "--", ...files], {
+    stdio: "ignore",
+  });
+
+  if (resetResult.status !== 0) {
+    throw new Error("Failed to update staged file selection");
+  }
+};
+
 const selectFilesForOperation = async (
   actionLabel: string,
   status: Awaited<ReturnType<SimpleGit["status"]>>,
+  shouldStageSelection: boolean,
 ) => {
   const changedFiles = getChangedFiles(status);
 
@@ -134,7 +159,7 @@ const selectFilesForOperation = async (
     return;
   }
 
-  if (changedFiles.length === 1) {
+  if (changedFiles.length === 1 && !shouldStageSelection) {
     return [changedFiles[0]];
   }
 
@@ -162,6 +187,19 @@ const selectFilesForOperation = async (
   }
 
   const filesToUse = selectedFiles as string[];
+  if (!shouldStageSelection) {
+    p.outro(chalk.blue(`Using ${filesToUse.length} selected file(s)...`));
+    return filesToUse;
+  }
+
+  const filesToUnstage = status.staged.filter(
+    (file) => !filesToUse.includes(file),
+  );
+
+  if (filesToUnstage.length > 0) {
+    await unstageFiles(filesToUnstage);
+  }
+
   p.outro(chalk.blue(`Using ${filesToUse.length} selected file(s)...`));
   return filesToUse;
 };
@@ -460,20 +498,17 @@ program.action(async (options) => {
     loader.start("Inspecting repository changes");
     let status = await git.status();
     const changedFiles = getChangedFiles(status);
-    const stagedFiles = Array.from(new Set(status.staged));
 
-    if (options.diff && changedFiles.length === 0) {
+    if (changedFiles.length === 0) {
       loader.stop();
       console.log(chalk.yellow("No files changed in this repository."));
       process.exit(0);
     }
 
-    if (!options.diff && stagedFiles.length === 0) {
-      loader.stop();
-      console.log(
-        chalk.yellow("No staged changes found. Stage files manually and rerun git aic."),
-      );
-      process.exit(0);
+    if (!options.diff) {
+      loader.update(`Staging ${changedFiles.length} changed file(s)`);
+      await git.add(["--all"]);
+      status = await git.status();
     }
 
     const actionLabel = options.diff
@@ -483,18 +518,24 @@ program.action(async (options) => {
         : "commit";
     let selectedFiles: string[] = [];
 
-    if (options.diff && changedFiles.length > 1) {
+    if (!options.diff) {
       loader.stop();
-      selectedFiles = (await selectFilesForOperation(actionLabel, status)) || [];
-    } else if (options.diff && !status.staged.includes(changedFiles[0])) {
+      selectedFiles =
+        (await selectFilesForOperation(actionLabel, status, true)) || [];
+    } else if (changedFiles.length > 1) {
       loader.stop();
-      selectedFiles = (await selectFilesForOperation(actionLabel, status)) || [];
+      selectedFiles =
+        (await selectFilesForOperation(actionLabel, status, false)) || [];
+    } else if (!status.staged.includes(changedFiles[0])) {
+      loader.stop();
+      selectedFiles =
+        (await selectFilesForOperation(actionLabel, status, false)) || [];
     } else {
-      selectedFiles = options.diff ? changedFiles : stagedFiles;
+      selectedFiles = changedFiles;
       loader.succeed(
         options.diff
           ? "Using the currently selected file set for diff report"
-          : "Using the currently staged file set",
+          : "Using the selected staged file set",
       );
     }
 

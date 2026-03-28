@@ -13,9 +13,9 @@ It is built for local Git usage with interactive file selection, Gemini-based su
 
 `git aic`
 
-- inspects the repository for staged files
-- does **not** stage or unstage files for commit workflows
-- uses the currently staged file set as the commit input
+- inspects the repository for changed files
+- stages current changes, including deleted files, for commit workflows
+- lets you choose which staged files should be part of the commit
 - sends the staged diff to Gemini
 - generates a Conventional Commits style message
 - commits with that message
@@ -214,15 +214,16 @@ git aic -p : This is a shortcut for `git aic --push`
 
 ## Important Workflow Notes
 
-### Commit mode uses the current staged set
+### Commit mode stages changes, then lets you choose
 
 Commit workflows are based on the staged diff.
 
 When you run `git aic` or `git aic --push`:
 
-- the tool does not stage files
-- the tool does not unstage files
-- the final commit message is generated from the staged diff exactly as it already exists
+- the tool stages current changes, including deletions
+- the tool prompts you to choose which files should stay staged for the commit
+- files you do not select are unstaged before the commit is generated
+- the final commit message is generated from the resulting staged diff
 
 ### Diff mode does not stage files
 
