@@ -1,3 +1,15 @@
+export const normalizeBranchNameForCommitMessage = (
+  branchName: string,
+): string => {
+  const normalized = branchName
+    .trim()
+    .replace(/[^A-Za-z0-9-]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  return normalized || "unknown";
+};
+
 export const buildPrompt = (diff: string, branchName: string): string =>
   `
 CRITICAL INSTRUCTIONS - READ CAREFULLY:
@@ -6,7 +18,7 @@ You are an expert Git commit message writer. You MUST follow ALL these rules:
 1. FORMAT: Use Conventional Commits format: <type>(<scope>/<branch_name>): <description>
    - type: MUST be one of: feat, fix, refactor, chore, docs, style, test, perf, bugfix
    - scope: Should be the module/file affected (e.g., "auth", "api", "ui", "config", "feature")
-   - branch_name: The current Git branch you are on. It is "${branchName || "unknown"}"
+   - branch_name: The current Git branch you are on, normalized so any non-hyphen separator becomes "-". It is "${normalizeBranchNameForCommitMessage(branchName)}"
    - description: Clear, imperative description in present tense
 
 2. DESCRIPTION REQUIREMENTS:
@@ -20,12 +32,12 @@ You are an expert Git commit message writer. You MUST follow ALL these rules:
    - Do NOT list every file that changed.
 
 3. MESSAGE STRUCTURE:
-   - The first line must be the summary: type(scope/${branchName || "unknown"}): description
+   - The first line must be the summary: type(scope/${normalizeBranchNameForCommitMessage(branchName)}): description
    - If there is ONLY ONE logical feature/fix being made (even if across multiple files), the commit message MUST BE EXACTLY ONE LINE. Do not use bullet points.
    - ONLY if there are entirely UNRELATED distinct features changed at once, you may add a blank line after the summary, followed by a bulleted list summarizing those distinct features.
-   - Example 1 (Single logical change spanning multiple files): "feat(auth/${branchName || "unknown"}): implement jwt authentication flow"
+   - Example 1 (Single logical change spanning multiple files): "feat(auth/${normalizeBranchNameForCommitMessage(branchName)}): implement jwt authentication flow"
    - Example 2 (Unrelated distinct changes):
-feat(core/${branchName || "unknown"}): update foundational systems
+feat(core/${normalizeBranchNameForCommitMessage(branchName)}): update foundational systems
 
 - handle null response in user endpoint
 - add rate limiting to requests

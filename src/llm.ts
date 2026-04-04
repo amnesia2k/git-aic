@@ -7,6 +7,7 @@ import {
   buildDiffExplanationPrompt,
   buildDiffFileNamePrompt,
   buildPrompt,
+  normalizeBranchNameForCommitMessage,
 } from "./prompt.js";
 
 interface GeminiPart {
@@ -248,10 +249,21 @@ export const generateCommitMessage = async (
   branchName: string,
 ): Promise<string> => {
   const prompt = buildPrompt(rawDiff, branchName);
-
-  return requestText(prompt, "chore: update code", {
+  const message = await requestText(prompt, "chore: update code", {
     operation: "commit-message",
   });
+
+  const lines = message.split(/\r?\n/);
+  const summary = lines[0] || "";
+  const normalizedSummary = summary.replace(
+    /^([a-z]+)\(([^()/]+)\/([^)]+)\):(.*)$/i,
+    (_, type: string, scope: string, branch: string, description: string) =>
+      `${type}(${scope}/${normalizeBranchNameForCommitMessage(branch)}):${description}`,
+  );
+
+  lines[0] = normalizedSummary;
+
+  return lines.join("\n");
 };
 
 export const generateDiffExplanation = async (
