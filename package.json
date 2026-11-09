@@ -1,7 +1,7 @@
 {
   "name": "@amnesia2k/git-aic",
   "type": "module",
-  "version": "2.1.13",
+  "version": "2.1.14",
   "description": "AI-generated Conventional Commit messages and diff reports for Git, powered by Google Gemini",
   "main": "dist/bin/cli.js",
   "bin": {
