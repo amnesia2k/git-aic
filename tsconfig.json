@@ -1,14 +1,18 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
+    "lib": ["ES2022"],
+    "types": ["node"],
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
+    "rootDir": "./",
     "outDir": "./dist"
   },
-  "include": ["src"]
+  "include": ["src/**/*", "bin/**/*"],
+  "exclude": ["node_modules", "dist", "git-diffs", "website"]
 }

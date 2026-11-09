@@ -2,8 +2,31 @@
   "name": "@amnesia2k/git-aic",
   "type": "module",
   "version": "2.1.12",
-  "description": "Git AIC",
+  "description": "AI-generated Conventional Commit messages and diff reports for Git, powered by Google Gemini",
   "main": "dist/bin/cli.js",
+  "bin": {
+    "git-aic": "dist/bin/cli.js"
+  },
+  "files": [
+    "dist/",
+    "bin/",
+    "src/",
+    "README.md",
+    "package.json"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "dev": "tsx bin/cli.ts",
+    "commit": "tsx bin/cli.ts",
+    "prepublishOnly": "npm run typecheck && npm run lint && npm run build",
+    "release": "npm version patch && git push origin master --follow-tags && npm publish"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/amnesia2k/git-aic.git"
@@ -16,22 +39,6 @@
     "access": "public"
   },
   "private": false,
-  "bin": {
-    "git-aic": "dist/bin/cli.js"
-  },
-  "files": [
-    "dist/",
-    "bin/",
-    "src/",
-    "README.md",
-    "package.json"
-  ],
-  "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "dev": "tsx bin/cli.ts",
-    "commit": "tsx bin/cli.ts",
-    "release": "npm run build && npm version patch && git push origin master --follow-tags && npm publish"
-  },
   "keywords": [
     "git",
     "aic",
@@ -54,12 +61,13 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@types/bun": "latest",
-    "@types/conf": "^2.1.0",
+    "@eslint/js": "^10.0.1",
     "@types/node": "^25.5.0",
-    "ts-node": "^10.9.2",
+    "eslint": "^10.14.0",
+    "globals": "^17.14.0",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.72.1"
   },
   "dependencies": {
     "@clack/prompts": "^1.1.0",
