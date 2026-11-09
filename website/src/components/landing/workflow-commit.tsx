@@ -1,17 +1,19 @@
 import { motion } from 'motion/react'
-import { Terminal, Lightbulb, CheckCircle2 } from 'lucide-react'
+import { CheckCircle2 } from 'lucide-react'
 import { useGitHubLatestRelease } from '@/hooks/use-github'
 
 const steps = [
-  'Interactive file selection with @clack/prompts',
-  'Deep code analysis via Google Gemini Pro',
+  'Interactive file selection, from any folder in the repo',
+  'Deep code analysis via Google Gemini',
   'Strict Conventional Commits formatting',
-  'Optional automatic push with --push',
+  'Review, edit, or regenerate before committing',
+  'Secrets and build folders caught before they are committed',
+  'One-step push with --push, including sign-in for private repos',
 ]
 
 export function WorkflowCommit() {
   const { data: release } = useGitHubLatestRelease()
-  const version = release?.tag_name || 'v 1.2.3'
+  const version = release?.tag_name || 'latest'
   return (
     <section
       id="workflows"
@@ -97,9 +99,14 @@ export function WorkflowCommit() {
                   <div className="text-white/30 mb-2">
                     Gemini Analysis:
                   </div>
-                  <div className="text-secondary font-bold">
-                    feat(engine): optimize prompt structure for Gemini Pro
+                  <div className="text-secondary font-bold break-all">
+                    feat(engine/main): optimize prompt structure
                   </div>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-white/40">? Use this commit message?</div>
+                  <div className="pl-6 text-primary">● Commit</div>
+                  <div className="pl-6 text-white/40">○ Edit · ○ Regenerate · ○ Cancel</div>
                 </div>
                 <div className="flex gap-3 items-center text-xs text-white/40">
                   <span className="text-secondary">➜</span>

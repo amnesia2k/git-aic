@@ -8,16 +8,28 @@ The website is designed with a premium, terminal-inspired aesthetic, featuring i
 
 - **Mission**: Provide a clear, visual entry point for developers looking to automate their Git workflow with AI.
 - **Visual Style**: Dark-themed "Obsidian" terminal look, glassmorphism, fluid typography, and professional motion animations.
-- **Key Sections**: Hero, Commit Workflow, Diff Workflow, Tech Stack Carousel, and OS-aware Installation steps.
+- **Key Sections** (one page, top to bottom): Hero, Features, Commit Workflow, Diff Workflow, Tech Stack Carousel, Gemini API Key guide, OS-aware Installation steps, and the Commands reference.
 
 ## Features
 
 - **Interactive Workflow Mockups**: Real-time terminal simulations for commit and diff flows.
-- **Real-time GitHub Integration**: Dynamic star counts and release tags fetched via TapStack Query with persistent caching.
+- **Real-time GitHub Integration**: Dynamic star counts and release tags fetched client-side via TanStack Query and cached in localStorage for an hour (the GitHub API is called unauthenticated, 60 requests/hour per visitor).
 - **OS Detection**: Tailors installation instructions based on whether the user is on macOS, Windows, or Linux.
+- **Commands Reference**: Every git-aic option, command, environment variable and common recipe, with copy buttons. The data lives in `src/lib/cli-reference.ts`; keep it in sync with the CLI and the [root README](../README.md#2-command-reference).
 - **Smooth Navigation**: Global smooth scrolling, scroll-margin-aware sections, and a smart scroll-to-top button.
 - **Premium Aesthetics**: Tailwind CSS v4, custom glass panels, and subpixel-perfect typography.
 - **Responsive Design**: Mobile-first architecture with a 75% sidebar navigation and fluid layouts.
+
+## Development
+
+```bash
+bun install
+bun run dev      # http://localhost:3000
+bun run lint
+bun run build    # outputs .output/ (Nitro server)
+```
+
+Deployed on Vercel: Nitro detects Vercel during the build and emits the output Vercel expects, so `vercel.json` only sets the build command.
 
 ## Technologies Used
 

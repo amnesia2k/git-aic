@@ -1,5 +1,5 @@
 import { motion } from 'motion/react'
-import { Zap, Shield, FileText, MousePointer2 } from 'lucide-react'
+import { Zap, Shield, FileText, ShieldCheck } from 'lucide-react'
 
 const features = [
   {
@@ -24,10 +24,10 @@ const features = [
     color: 'text-tertiary',
   },
   {
-    title: 'Low Friction',
+    title: 'Safe by Default',
     description:
-      'Designed for speed with bun/node and a minimal terminal UX. Lightning fast execution.',
-    icon: MousePointer2,
+      'Review every message before it lands, keep secrets out of commits, and get your staging area back if anything stops.',
+    icon: ShieldCheck,
     color: 'text-primary',
   },
 ]

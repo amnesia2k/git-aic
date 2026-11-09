@@ -23,8 +23,8 @@ const steps = [
   {
     title: 'Copy It Into Git AIC',
     description:
-      'Paste the key into the Git AIC setup step right below this section and keep it private.',
-    detail: 'git-aic set-key your_gemini_api_key',
+      'Run git-aic set-key and paste the key when asked, or just run git aic: it asks for the key the first time. Keep it private.',
+    detail: 'git-aic set-key',
   },
 ]
 

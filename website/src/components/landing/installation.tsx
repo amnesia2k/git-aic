@@ -72,7 +72,7 @@ export function Installation() {
                   <p className="text-xs md:text-sm font-medium">Config Key:</p>
                 </div>
                 <div className="p-4 bg-muted/30 dark:bg-black/50 rounded-xl font-mono text-xs md:text-sm border border-border/40 text-foreground/70 overflow-x-auto no-scrollbar break-all">
-                  git-aic set-key your_gemini_api_key
+                  git-aic set-key
                 </div>
               </div>
 

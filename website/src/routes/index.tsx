@@ -7,6 +7,7 @@ import { WorkflowDiff } from '@/components/landing/workflow-diff'
 import { TechStack } from '@/components/landing/tech-stack'
 import { GeminiApiKey } from '@/components/landing/gemini-api-key'
 import { Installation } from '@/components/landing/installation'
+import { Commands } from '@/components/landing/commands'
 import { Footer } from '@/components/landing/footer'
 import { ScrollToTop } from '@/components/landing/scroll-to-top'
 
@@ -47,11 +48,11 @@ export const Route = createFileRoute('/')({
       },
       {
         property: 'og:image',
-        content: 'https://git-aic.com/og-image.png',
+        content: 'https://git-aic.com/android-chrome-512x512.png',
       },
       {
         name: 'twitter:card',
-        content: 'summary_large_image',
+        content: 'summary',
       },
       {
         name: 'twitter:title',
@@ -102,6 +103,7 @@ function IndexPage() {
         <TechStack />
         <GeminiApiKey />
         <Installation />
+        <Commands />
         {/* <CtaBanner /> */}
       </main>
       <Footer />

@@ -36,6 +36,7 @@ export function Navbar() {
     { name: 'Workflows', href: '#workflows' },
     { name: 'API Key', href: '#gemini-api-key' },
     { name: 'Installation', href: '#installation' },
+    { name: 'Commands', href: '#commands' },
   ]
 
   return (
