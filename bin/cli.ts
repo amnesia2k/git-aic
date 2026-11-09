@@ -193,10 +193,19 @@ type Loader = ReturnType<typeof createLoader>;
 /*                                  Helpers                                   */
 /* -------------------------------------------------------------------------- */
 
-const normalizeLegacyDiffFlag = () => {
+/** Accepts common single-dash spellings (e.g. `-version`, `-diff`) and `-V` for the version. */
+const FLAG_ALIASES: Record<string, string> = {
+  "-diff": "--diff",
+  "-version": "--version",
+  "-V": "--version",
+};
+
+const normalizeFlagAliases = () => {
   for (let index = 2; index < process.argv.length; index += 1) {
-    if (process.argv[index] === "-diff") {
-      process.argv[index] = "--diff";
+    const replacement = FLAG_ALIASES[process.argv[index]];
+
+    if (replacement) {
+      process.argv[index] = replacement;
     }
   }
 };
@@ -1019,7 +1028,7 @@ const program = new Command();
 program
   .name("git-aic")
   .description("AI-generated Conventional Commits and diff reports, powered by Google Gemini")
-  .version(getPackageVersion(), "-V, --version", "print the git-aic version")
+  .version(getPackageVersion(), "-v, --version", "print the git-aic version (also -V)")
   .option("-p, --push", "push after committing")
   .option("-d, --diff", "write selected changes to a markdown diff report")
   .option("-a, --all", "use every changed file without showing the file selector")
@@ -1207,7 +1216,7 @@ const handleError = (error: unknown) => {
   return 1;
 };
 
-normalizeLegacyDiffFlag();
+normalizeFlagAliases();
 program
   .parseAsync(process.argv)
   .then(() => process.exit(process.exitCode ?? 0))

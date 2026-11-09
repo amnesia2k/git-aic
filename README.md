@@ -253,7 +253,7 @@ git aic <command> [arguments]  configuration and setup commands
 | `-a, --all`     | Use every changed file and skip the file selector (commit and diff mode).                        |
 | `-y, --yes`     | Skip confirmations. See below for exactly what it changes.                                       |
 | `--dry-run`     | Generate and print the commit message, then restore the staging area. Nothing is committed.      |
-| `-V, --version` | Print the installed version.                                                                     |
+| `-v, --version` | Print the installed version (`-V` and `-version` also work).                                     |
 | `-h, --help`    | Print help. `git aic help <command>` prints help for one command.                                |
 
 What `--yes` changes:
@@ -270,7 +270,7 @@ Option rules:
 
 - `--push` and `--dry-run` cannot be combined with `--diff` (diff mode never commits)
 - options combine freely otherwise, e.g. `git aic -a -y -p`
-- the legacy spelling `-diff` is accepted as `--diff`
+- single-dash spellings `-diff` and `-version` are accepted as `--diff` and `--version`
 
 #### Commands
 

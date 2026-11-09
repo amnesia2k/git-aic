@@ -41,7 +41,11 @@ export const options: ReferenceItem[] = [
     description: 'Print the generated message without committing.',
     note: 'Your staging area is restored.',
   },
-  { usage: '-V, --version', description: 'Print the installed version.' },
+  {
+    usage: '-v, --version',
+    description: 'Print the installed version.',
+    note: '-V and -version also work.',
+  },
   {
     usage: '-h, --help',
     description: 'Print help.',
